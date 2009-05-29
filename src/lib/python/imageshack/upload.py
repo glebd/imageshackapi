@@ -45,10 +45,6 @@ def upload_file(developer_key,
     
 
 
-if __name__ == "__main__":
-    import sys
-    # Sample usage: upload.py <DEVELOPER KEY> <filename>
-    print upload_file(sys.argv[1], sys.argv[2])
     
     
     
