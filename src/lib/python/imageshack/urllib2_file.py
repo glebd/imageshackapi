@@ -77,6 +77,11 @@ import urllib2
 
 CHUNK_SIZE = 65536
 
+class FileUpload:
+    def __init__(self, fd, content_type):
+        self.fd = fd
+        self.content_type = content_type
+
 def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
@@ -93,7 +98,7 @@ def send_data(v_vars, v_files, boundary, sock=None):
             sock.send(buffer)
         l += len(buffer)
     for (k, v) in v_files:
-        fd = v
+        fd = v.fd
         file_size = os.fstat(fd.fileno())[stat.ST_SIZE]
         name = fd.name.split('/')[-1]
         if isinstance(name, unicode):
@@ -102,8 +107,13 @@ def send_data(v_vars, v_files, boundary, sock=None):
         buffer += '--%s\r\n' % boundary
         buffer += 'Content-Disposition: form-data; name="%s"; filename="%s"\r\n' \
                   % (k, name)
-        buffer += 'Content-Type: %s\r\n' % get_content_type(name)
-        buffer += 'Content-Length: %s\r\n' % file_size
+
+        if v.content_type != None:
+            content_type = v.content_type
+        else:
+            content_type = get_content_type(name)
+        buffer += 'Content-Type: %s\r\n' % content_type
+        buffer += 'Content-Length: %ld\r\n' % file_size
         buffer += '\r\n'
 
         l += len(buffer)
@@ -117,12 +127,12 @@ def send_data(v_vars, v_files, boundary, sock=None):
                 sock.send(chunk)
 
         l += file_size
-    buffer='\r\n'
-    buffer += '--%s--\r\n' % boundary
-    buffer += '\r\n'
-    if sock:
-        sock.send(buffer)
-    l += len(buffer)
+        buffer='\r\n'
+        buffer += '--%s--\r\n' % boundary
+        buffer += '\r\n'
+        if sock:
+            sock.send(buffer)
+        l += len(buffer)
     return l
 
 # mainly a copy of HTTPHandler from urllib2
@@ -147,7 +157,7 @@ class newHTTPHandler(urllib2.BaseHandler):
                     raise TypeError, "not a valid non-string sequence or mapping object", tb
                 
             for (k, v) in data:
-                if hasattr(v, 'read'):
+                if isinstance(v, FileUpload):
                     v_files.append((k, v))
                 else:
                     v_vars.append( (k, v) )
