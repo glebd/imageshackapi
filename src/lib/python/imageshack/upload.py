@@ -28,7 +28,7 @@ class ServerException(Exception):
         self.message = message
 
     def __str__(self):
-        return "ServerException:%d:%s" % (self.code, self.message)
+        return "ServerException:%s:%s" % (self.code, self.message)
 
 class Uploader:
     
@@ -120,7 +120,8 @@ class Uploader:
                 req = urllib2.Request(u, data, {})
                 socket.setdefaulttimeout(HTTP_UPLOAD_TIMEOUT)
                 u = urllib2.urlopen(req)
-                return u.read()
+                xmlres = u.read()
+                return self._parseResponse(xmlres)
             finally:
                 if tfd!=None:
                     tfd.close()
@@ -132,4 +133,32 @@ class Uploader:
             return 'yes'
         else:
             return 'no'
+
+    def _parseErrorResponse(self, err):
+        ia = err.attributes.get('id')
+        if ia==None:
+            raise UploadException("Cound not decode server error XML response (no id attriubute)")
+        raise ServerException(ia.value, self._getText(err.childNodes))
+
+
+    def _parseResponse(self, xmlres):
+        d = parseString(xmlres)
+        try:
+            links = d.getElementsByTagName('links')
+            if links==None or len(links)!=1:
+                raise UploadException("Cound not decode server XML response (no links element)")
+            error = links[0].getElementsByTagName('error')
+            if error!=None and len(error)>0:
+                return self._parseErrorResponse(error[0])
+            else:
+                return xmlres
+        finally:
+            d.unlink()
+
+    def _getText(self, nodelist):
+        rc = ""
+        for node in nodelist:
+            if node.nodeType == node.TEXT_NODE:
+                rc = rc + node.data
+        return rc
 
