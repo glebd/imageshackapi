@@ -64,6 +64,62 @@
     }
 
     /**
+     * Transloads file to yfrog.com. 
+     * Requirements: simplexml, curl
+     * @param url URL to transload
+     * @param username Twitter username
+     * @param password Twitter password
+     * @param tags comma-separated list of tags
+     * @param public is uploaded media should be public or not
+     * @param timeout connection and response timeout
+     * @return array 
+     *  stat: true/false; true indicates success, false - error
+     *  code: error code  (only if stat = false)
+     *  msg: error message (only if stat = false)
+     *  mediaid media identifier (only if stat = true)
+     *  mediaurl media URL (only if stat = true)
+     */
+    function yfrog_transload($url,
+                             $username,
+                             $password,
+                             $tags = '',
+                             $public = true,
+                             $timeout = YFROG_API_TIMEOUT)
+    {
+        $request = array
+        (
+            'username' => $username,
+            'password' => $password,
+            'tags'     => $tags,
+            'public'   => $public ? 'yes' : 'no',
+            'url'      => $url
+        );
+
+        return __yfrog_exec('upload', $request, $timeout);
+    }
+
+
+    /**
+     * @deprecated
+     */
+    function yfrog_post($filename,
+                        $message,
+                        $username,
+                        $password,
+                        $tags = '',
+                        $public = true,
+                        $timeout = YFROG_API_TIMEOUT)
+    {
+        return yfrog_upload_and_post($filename,
+                                     $message,
+                                     $username,
+                                     $password,
+                                     $tags,
+                                     $public,
+                                     $timeout);
+    }
+
+    /**
      * Uploads file to yfrog.com and posts message to Twitter. 
      * Requirements: simplexml, curl
      * @param filename filename to upload
@@ -80,13 +136,13 @@
      *  mediaid media identifier (only if stat = true)
      *  mediaurl media URL (only if stat = true)
      */
-    function yfrog_post($filename,
-                        $message,
-                        $username,
-                        $password,
-                        $tags = '',
-                        $public = true,
-                        $timeout = YFROG_API_TIMEOUT)
+    function yfrog_upload_and_post($filename,
+                                   $message,
+                                   $username,
+                                   $password,
+                                   $tags = '',
+                                   $public = true,
+                                   $timeout = YFROG_API_TIMEOUT)
     {
         $request = array
         (
@@ -100,6 +156,47 @@
 
         return __yfrog_exec('uploadAndPost', $request, $timeout);
     }
+
+
+    /**
+     * Transloads file to yfrog.com and posts message to Twitter. 
+     * Requirements: simplexml, curl
+     * @param url URL to upload
+     * @param message message to send
+     * @param username Twitter username
+     * @param password Twitter password
+     * @param tags comma-separated list of tags
+     * @param public is uploaded media should be public or not
+     * @param timeout connection and response timeout
+     * @return array 
+     *  stat: true/false; true indicates success, false - error
+     *  code: error code  (only if stat = false)
+     *  msg: error message (only if stat = false)
+     *  mediaid media identifier (only if stat = true)
+     *  mediaurl media URL (only if stat = true)
+     */
+    function yfrog_transload_and_post($url,
+                                      $message,
+                                      $username,
+                                      $password,
+                                      $tags = '',
+                                      $public = true,
+                                      $timeout = YFROG_API_TIMEOUT)
+    {
+        $request = array
+        (
+            'username' => $username,
+            'password' => $password,
+            'tags'     => $tags,
+            'public'   => $public ? 'yes' : 'no',
+            'url'      => $url,
+            'message'  => $message
+        );
+
+        return __yfrog_exec('uploadAndPost', $request, $timeout);
+    }
+
+
 
     function __yfrog_exec($action,
                           $request,
