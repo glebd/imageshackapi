@@ -1,6 +1,6 @@
 <?php
     require_once('commandline.php');
-    require_once('yfrog.php');
+    require_once('yfrog.class.php');
     
     function usage()
     {
@@ -22,7 +22,8 @@ EOT;
         die();
     }
 
-    $response = yfrog_transload($url, $username, $password, $tags, $public == 'yes');
+    $uploader = &new YfrogUploader();
+    $response = $uploader->transload($url, $username, $password, $tags, $public == 'yes');
     if ($response['stat'])
         echo $response['mediaurl'];
     else
