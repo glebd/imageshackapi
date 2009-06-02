@@ -6,24 +6,24 @@
     {
 echo <<<EOT
 Usage:
-    yfrog-post.php --username USERNAME --password PASSWORD --file FILE [--message MESSAGE] [--tags TAGS] [--public yes | --public no]
+    yfrog-transload-and-post.php --username USERNAME --password PASSWORD --url URL [--message MESSAGE] [--tags TAGS] [--public yes | --public no]
 EOT;
     }
 
     $username = param('username');
     $password = param('password');
-    $file     = param('file');
+    $url      = param('url');
     $tags     = param('tags');
     $public   = param('public');
     $message  = param('message');
 
-    if (!$username || !$password || !$file)
+    if (!$username || !$password || !$url)
     {
         usage();
         die();
     }
 
-    $response = yfrog_post($file, $message, $username, $password, $tags, $public == 'yes');
+    $response = yfrog_transload_and_post($url, $message, $username, $password, $tags, $public == 'yes');
     if ($response['stat'])
         echo 'http://twitter.com/' . $username . '/status/' . $response['statusid'];
     else
