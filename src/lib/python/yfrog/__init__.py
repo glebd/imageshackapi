@@ -1,5 +1,6 @@
 ''' yfrog api '''
 
-__all__ = ["upload"]
+from upload import YfrogUploader
+
 
 

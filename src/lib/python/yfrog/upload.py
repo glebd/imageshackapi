@@ -10,6 +10,7 @@ import socket
 
 from mimetypes import guess_type
 from xml.dom.minidom import parseString
+from os.path import exists
 
 API_URL = 'http://yfrog.com/api/%s'
 HTTP_UPLOAD_TIMEOUT = 300
@@ -35,14 +36,14 @@ class YfrogUploader:
         '''
         self.timeout = timeout
 
-    def upload(self,
-               filename,
-               twitter_username,
-               twitter_password,
-               content_type = None,
-               tags = None,
-               public = True):
-        '''Uploads given file.
+    def uploadFile(self,
+                   filename,
+                   twitter_username,
+                   twitter_password,
+                   content_type = None,
+                   tags = None,
+                   public = True):
+        '''Uploads local file.
         
         Args:
         filename: media file name to be uploaded
@@ -55,6 +56,10 @@ class YfrogUploader:
         returns dictionary with with following keys:
         url: url of uploaded image (this is URL for HTML page)
         '''
+
+        if not exists(filename):
+            raise YfrogUploadException("File %s does not exist" % filename)
+            
         if content_type == None:
             (content_type, encoding) = guess_type(filename, False)
             if content_type==None:
@@ -63,9 +68,9 @@ class YfrogUploader:
         fd = open(filename,'rb')
         try:
             data = {'media' : urllib2_file.FileUpload(fd, content_type),
-                    'public' : self.yesno(public),
-                    'username' : username,
-                    'password' : password
+                    'public' : self._yesno(public),
+                    'username' : twitter_username,
+                    'password' : twitter_password
                     }
             if tags:
                 data['tags'] = tags
@@ -86,21 +91,21 @@ class YfrogUploader:
         ca = err[0].attributes.get('code')
         if ca==None:
             raise YfrogUploadException("Cound not decode server XML response (no code attriubute)")
-        ca = err[0].attributes.get('msg')
+        ma = err[0].attributes.get('msg')
         if ma==None:
             raise YfrogUploadException("Cound not decode server XML response (no msg attriubute)")
         raise YfrogServerException(int(ca.value),ma.value)
 
 
-    def __parseOKResponse(self,d):
+    def _parseOKResponse(self,d):
         mu = d.getElementsByTagName('mediaurl')
         if mu==None or len(mu)!=1:
             raise YfrogUploadException("Cound not decode server XML response (no mediaurl element)")
-        url = self._getText(mu[0])
+        url = self._getText(mu[0].childNodes)
         return {'url':url}
         
     def _parseResponse(self, xmlres):
-        dom = parseString(xmlres)
+        d = parseString(xmlres)
         try:
             rsp = d.getElementsByTagName('rsp')
             if rsp==None or len(rsp)!=1:
@@ -115,7 +120,7 @@ class YfrogUploader:
             else:
                 raise YfrogUploadException("Cound not decode server XML response (unrecognized stat attriubute value)")
         finally:
-            dom.unlink()
+            d.unlink()
             
     def _yesno(self, x):
         if x:
