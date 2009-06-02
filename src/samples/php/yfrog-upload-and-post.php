@@ -1,6 +1,6 @@
 <?php
     require_once('commandline.php');
-    require_once('yfrog.php');
+    require_once('yfrog.class.php');
     
     function usage()
     {
@@ -23,7 +23,8 @@ EOT;
         die();
     }
 
-    $response = yfrog_upload_and_post($file, $message, $username, $password, $tags, $public == 'yes');
+    $uploader = &new YfrogUploader();
+    $response = $uploader->uploadAndPost($file, $message, $username, $password, $tags, $public == 'yes');
     if ($response['stat'])
         echo 'http://twitter.com/' . $username . '/status/' . $response['statusid'];
     else
