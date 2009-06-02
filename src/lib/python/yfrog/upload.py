@@ -141,8 +141,9 @@ class YfrogUploader:
             raise YfrogUploadException("Cound not decode server XML response (no code attriubute)")
         ma = err[0].attributes.get('msg')
         if ma==None:
-            raise YfrogUploadException("Cound not decode server XML response (no msg attriubute)")
-        raise YfrogServerException(int(ca.value),ma.value)
+            raise YfrogServerException(int(ca.value), None)
+        else:
+            raise YfrogServerException(int(ca.value),ma.value)
 
 
     def _parseOKResponse(self,d):
