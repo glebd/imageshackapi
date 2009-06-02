@@ -1,12 +1,17 @@
-#!/usr/bin/env python
-
-from imageshack import upload
+import imageshack
 import sys
 
 if __name__ == "__main__":
-    # Sample 
+
     if len(sys.argv)!=3:
-        print "Usage upload.py <DEVELOPER KEY> <filename>"
+        print "Usage upload.py <devkey> <filename/url>"
         sys.exit(1)
-   
-    print upload.upload_file(sys.argv[1], sys.argv[2])
+    u = imageshack.Uploader(sys.argv[1])
+
+    try:
+        if sys.argv[2].startswith("http://"):
+            print u.uploadURL(sys.argv[2])
+        else:
+            print u.uploadFile(sys.argv[2])
+    except imageshack.ServerException, e:
+        print str(e)

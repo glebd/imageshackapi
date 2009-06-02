@@ -1,1 +1,3 @@
-__all__ = ["upload"]
+''' imageshack api '''
+
+from upload import *
