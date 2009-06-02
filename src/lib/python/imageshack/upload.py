@@ -30,21 +30,9 @@ class ServerException(Exception):
     def __str__(self):
         return "ServerException:%d:%s" % (self.code, self.message)
 
-class ImageshackUploader:
+class Uploader:
     
-    def __init__(self, dev_key, timeout=HTTP_UPLOAD_TIMEOUT):
-        '''Creates uploader object.
-        Args:
-        dev_key: developer key
-        timeout: timeout in seconds for upload operation (optional)
-        '''
-        self.cookie = None
-        self.username = None
-        self.password = None
-        self.dev_key = dev_key
-        self.timeout = timeout
-
-    def __init__(self, dev_key, cookie, timeout=HTTP_UPLOAD_TIMEOUT):
+    def __init__(self, dev_key, cookie=None, username=None, password=None, timeout=HTTP_UPLOAD_TIMEOUT):
         '''Creates uploader object.
         Args:
         cookie: cookie
@@ -52,19 +40,6 @@ class ImageshackUploader:
         timeout: timeout in seconds for upload operation (optional)
         '''
         self.cookie = cookie
-        self.username = None
-        self.password = None
-        self.dev_key = dev_key
-        self.timeout = timeout
-
-    def __init__(self, dev_key, username, password, timeout=HTTP_UPLOAD_TIMEOUT):
-        '''Creates uploader object.
-        Args:
-        cookie: cookie
-        dev_key: developer key
-        timeout: timeout in seconds for upload operation (optional)
-        '''
-        self.cookie = None
         self.username = username
         self.password = password
         self.dev_key = dev_key
@@ -85,8 +60,12 @@ class ImageshackUploader:
         optizie: optional reisizing parameter in format of (widh, height) tuple
 
         '''
-        
 
+        if (self.username and not self.password) or (self.password and not self.username):
+            raise UploadException("Must specify both usernane and password")
+            
+        if self.username and self.cookie:
+            raise UploadException("Must specify either usernane/password or cookie but not both")
         if not exists(filename):
             raise UploadException("File %s does not exist" % filename)
 
@@ -105,7 +84,7 @@ class ImageshackUploader:
             u = VIDEO_API_URL
             is_video=True
         else:
-            raise UploadException("Unsupported content type %s", % content_type)
+            raise UploadException("Unsupported content type %s" % content_type)
 
         # some sanity checks
         if is_video:
@@ -141,7 +120,6 @@ class ImageshackUploader:
                 req = urllib2.Request(u, data, {})
                 socket.setdefaulttimeout(HTTP_UPLOAD_TIMEOUT)
                 u = urllib2.urlopen(req)
-                u.read()
                 return u.read()
             finally:
                 if tfd!=None:
