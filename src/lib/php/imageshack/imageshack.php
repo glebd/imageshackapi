@@ -6,7 +6,7 @@
      * API endpoints
      */
     define('IMAGESHACK_API_URL',       'http://imageshack.us/upload_api.php');
-    define('IMAGESHACK_VIDEO_API_URL', 'http://render1.imageshack.us/upload_api.php');
+    define('IMAGESHACK_VIDEO_API_URL', 'http://render.imageshack.us/upload_api.php');
 
     /**
      * Default connection and response timeout
