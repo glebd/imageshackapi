@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-API to upload image and video files to yfrog.omc
+client API library to upload images and videos to yfrog.com
 '''
 
 import urllib2_file
@@ -36,6 +36,39 @@ class YfrogUploader:
         '''
         self.timeout = timeout
 
+    def uploadURL(self,
+                   url,
+                   twitter_username,
+                   twitter_password,
+                   tags = None,
+                   public = True):
+        '''Uploads local file.
+        
+        Args:
+        url: url of file to be uploaded
+        filename: media file name to be uploaded
+        twitter_username: password
+        twitter_password: username
+        tags: comma-separated list of tags (optional)
+        public: whenever image is public or not
+        
+        returns dictionary with with following keys:
+        url: url of uploaded image (this is URL for HTML page)
+        '''
+        data = {'url' : url,
+                'public' : self._yesno(public),
+                'username' : twitter_username,
+                'password' : twitter_password
+                }
+        if tags:
+            data['tags'] = tags
+
+        req = urllib2.Request(API_URL % "upload", data, {})
+        socket.setdefaulttimeout(self.timeout)
+        u = urllib2.urlopen(req)
+        xmlres = u.read()
+        return self._parseResponse(xmlres)
+    
     def uploadFile(self,
                    filename,
                    twitter_username,
