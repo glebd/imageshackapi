@@ -26,6 +26,8 @@ class YfrogServerException(Exception):
         self.code = code
         self.message = message
 
+    def __str__(self):
+        return "YfrogServerException:%d:%s" % (self.code, self.message)
 
 class YfrogUploader:
     
@@ -37,18 +39,19 @@ class YfrogUploader:
         self.timeout = timeout
 
     def uploadURL(self,
-                   url,
-                   twitter_username,
-                   twitter_password,
-                   tags = None,
-                   public = True):
+                  url,
+                  twitter_username,
+                  twitter_password,
+                  message = None,
+                  tags = None,
+                  public = True):
         '''Uploads local file.
         
         Args:
         url: url of file to be uploaded
-        filename: media file name to be uploaded
         twitter_username: password
         twitter_password: username
+        message: Message to post to twitter. The URL of the image or video is automatically added. (optional)
         tags: comma-separated list of tags (optional)
         public: whenever image is public or not
         
@@ -62,8 +65,13 @@ class YfrogUploader:
                 }
         if tags:
             data['tags'] = tags
-
-        req = urllib2.Request(API_URL % "upload", data, {})
+        if message:
+            data['message'] = message
+            apiurl = API_URL % "uploadAndPost"
+        else:
+            apiurl = API_URL % "upload"
+        
+        req = urllib2.Request(apiurl, data, {})
         socket.setdefaulttimeout(self.timeout)
         u = urllib2.urlopen(req)
         xmlres = u.read()
@@ -73,6 +81,7 @@ class YfrogUploader:
                    filename,
                    twitter_username,
                    twitter_password,
+                   message = None,
                    content_type = None,
                    tags = None,
                    public = True):
@@ -82,6 +91,7 @@ class YfrogUploader:
         filename: media file name to be uploaded
         twitter_username: password
         twitter_password: username
+        message: Message to post to twitter. The URL of the image or video is automatically added. (optional)
         content_type: content type of file. (optional)
         tags: comma-separated list of tags (optional)
         public: whenever image is public or not
@@ -107,8 +117,13 @@ class YfrogUploader:
                     }
             if tags:
                 data['tags'] = tags
+            if message:
+                data['message'] = message
+                apiurl = API_URL % "uploadAndPost"
+            else:
+                apirul = API_URL % "upload"
 
-            req = urllib2.Request(API_URL % "upload", data, {})
+            req = urllib2.Request(apiurl, data, {})
             socket.setdefaulttimeout(self.timeout)
             u = urllib2.urlopen(req)
             xmlres = u.read()

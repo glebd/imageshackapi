@@ -1,6 +1,6 @@
 ''' yfrog api '''
 
-from upload import YfrogUploader
+from upload import *
 
 
 
