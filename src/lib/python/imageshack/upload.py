@@ -12,10 +12,12 @@ http://reg.imageshack.us/content.php?page=developerpublic
 import urllib2_file
 import urllib2
 import socket
+import httplib
 
 from mimetypes import guess_type
 from xml.dom.minidom import parseString
 from os.path import exists
+from urlparse import urlsplit
 
 IMAGE_API_URL = 'http://www.imageshack.us/upload_api.php'
 VIDEO_API_URL = 'http://render.imageshack.us/upload_api.php'
@@ -134,12 +136,11 @@ class Uploader:
             
             if content_type == None:
                 (content_type, encoding) = guess_type(filename, False)
-                if content_type==None:
-                    raise UploadException("Could not guess content/type for input file %s" % filename)
         else:
-            # TODO: Do HEAD to get content type
-            content_type="image/jpeg" # TEST only!!
+            content_type = self._getURLContentType(url)
 
+        if content_type==None:
+            raise UploadException("Could not guess content/type for input file %s" % filename)
         if content_type.lower().startswith("image/"):
             u = IMAGE_API_URL
             is_video=False
@@ -237,4 +238,15 @@ class Uploader:
             if node.nodeType == node.TEXT_NODE:
                 rc = rc + node.data
         return rc
+
+    def _getURLContentType(self, url):
+        parsed_url = urlsplit(url)
+        if parsed_url==None or parsed_url.hostname==None or len(parsed_url.hostname)==0:
+            raise UploadException("Invalid URL %s" % url)
+        c = httplib.HTTPConnection(parsed_url.hostname) 
+        c.request('HEAD', url)
+        r = c.getresponse()
+        if r.status!=200:
+            raise UploadException("Error %d fetching URL %s" % (r.status, url))
+        return r.getheader("Content-Type")
 
