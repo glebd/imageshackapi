@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 '''
-client API library to upload images and videos to imageshack.us
+Client API library to upload images and videos to imageshack.us
+
+Using "Unified upload API" as described here:
+
+http://reg.imageshack.us/content.php?page=developerpublic
+
 '''
 
 import urllib2_file
@@ -31,12 +36,15 @@ class ServerException(Exception):
         return "ServerException:%s:%s" % (self.code, self.message)
 
 class Uploader:
+    ''' Class to upload images and video to imageshack.
+    '''
     
     def __init__(self, dev_key, cookie=None, username=None, password=None, timeout=HTTP_UPLOAD_TIMEOUT):
         '''Creates uploader object.
         Args:
-        cookie: cookie
-        dev_key: developer key
+        dev_key: developer key (mandatory)
+        cookie: imagesack user cookie (optional)
+        username,password: imageshack user account credentials (optional)
         timeout: timeout in seconds for upload operation (optional)
         '''
         self.cookie = cookie
@@ -57,8 +65,16 @@ class Uploader:
         ''' upload image or video file
 
         Args:
+        filename: file name of image or video file to upload
         optizie: optional reisizing parameter in format of (widh, height) tuple
+        remove_bar: remove information bar on thumbnail
+        content_type: content type of file. (optional)
+        tags: comma-separated list of tags (optional)
+        public: whenever image is public or not (optional)
+        frame_filename: for video files optional video frame which will be shown in player while movie is loading.
 
+        Returns:
+        returns XML document with information on uploaded image.
         '''
 
         if (self.username and not self.password) or (self.password and not self.username):
