@@ -26,26 +26,18 @@ EOT;
 
     $ct = param('content-type');
 
-    $uploader = &new ImageShackUploader($key);
-    $cookie = param('cookie');
-    if ($cookie)
-        $uploader->setCookie($cookie);
-    $tags = param('tags');
-    if ($tags)
-        $uploader->setTags($tags);
+    $uploader = &new ImageShackUploader($key, param('cookie'));
     $public = param('public');
     if ($public)
         $public = $public != 'no';
-    if ($public !== null)
-        $uploader->setPublic($public);
-    $rembar = param('remove-bar') != 'no';
-    if ($rembar)
-        $uploader->setRemoveBar($rembar);
-    $optsize = param('optsize');
-    if ($optsize)
-        $uploader->setOptSize($optsize);
 
-    $response = $uploader->upload($file, $ct);
+    $response = $uploader->upload($file, 
+                                  param('optsize'), 
+                                  param('remove-bar') != 'no', 
+                                  param('tags'),
+                                  $public,
+                                  $ct);
+
     print_r($response);
 
 ?>

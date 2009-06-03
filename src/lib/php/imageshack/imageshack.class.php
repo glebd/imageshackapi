@@ -1,6 +1,6 @@
 <?php
     
-    require_once('multipost.php');
+    require_once('multipost.class.php');
 
     class ImageShackUploader
     {
@@ -15,144 +15,41 @@
          */
         const IMAGESHACK_API_TIMEOUT = 10;
 
-        protected $params = array();
         protected $timeout = self::IMAGESHACK_API_TIMEOUT;
 
-        /**
-         * Constructs new uploader using specified developer key
-         */
-        function __construct($developer_key)
-        {
-            $this->setDeveloperKey($developer_key);
-        }
+        protected $developer_key;
+        protected $cookie;
 
         /**
-         * Sets developer key to use
-         * @param string developer_key key to use
+         * Constructs new uploader using specified developer key and optional cookies
+         * @param string developer_key developer key to use
+         * @param cookie optional ImageShack cookies
          */
-        function setDeveloperKey($developer_key)
+        function __construct($developer_key, $cookie = null, $timeout = self::IMAGESHACK_API_TIMEOUT)
         {
-            $this->addParameter('key', $developer_key);
+            $this->developer_key = $developer_key;
+            $this->cookie        = $cookie;
+            $this->timeout       = $timeout;
         }
 
-        /**
-         * Sets user cookies. By default there are no cookies passed
-         * @param string cookie ImageShack cookies
-         */
-        function setCookie($cookie)
-        {
-            $this->addParameter('cookie', $cookie);
-        }
-
-        /**
-         * Sets if image should be optimized or resized. By default no image transformation is performed
-         * @param string optsize format: WIDTHxHEIGHT or 'resample'
-         */
-        function setOptSize($optsize)
-        {
-            if ($optsize)
-            {
-                $this->addParameter('optimage', 1);
-                $this->addParameter('optsize', $optsize);
-            }
-            else
-            {
-                $this->removeParameter('optimage');
-                $this->removeParameter('optsize');
-            }
-        }
-
-        /**
-         * Sets if image thumbnail should have no information bar. By default thumbnail generated contains information bar
-         * @param boolean removeBar true to remove information bar from thumbnail. 
-         */
-        function setRemoveBar($removeBar)
-        {
-            $this->addParameter('rembar', $removeBar ? 'yes' : 'no');
-        }
-
-        /**
-         * Sets if image should be public. By default all images are public if user defined this in preferences. 
-         * Have no impact if user's cookies are not set.
-         * @param boolean public true to make image public, false otherwise
-         * @see setCookie()
-         */
-        function setPublic($public)
-        {
-            $this->addParameter('public', $public ? 'yes' : 'no');
-        }
-
-        /**
-         * Adds tags to image upload/transload. 
-         * @param string tags tags - comma separated string
-         */
-        function setTags($tags)
-        {
-            $this->addParameter('tags', $tags);
-        }
-
-        /**
-         * Sets API timeout
-         * @param int timeout API timeout (seconds)
-         */
-        function setTimeout($timeout)
-        {
-            $this->timeout = $timeout;
-        }
-
-        /**
-         * Defines expected destination file name for uploaded file.
-         * Note: It's not  mandatory that resulting file will have exactly the same name
-         * @param string file destination filename, e.g. destination.jpg
-         */
-        function setDestFile($file)
-        {
-            $this->addParameter('dest_file', $file);
-        }
-
-        /**
-         * Sets IP address from what request was made. By default IP address of caller is used
-         * @param string ip remote IP
-         */
-        function setIp($ip)
-        {
-            $this->addParameter('remote_ip', $ip);
-        }
-
-        /**
-         * If this flag is set to true, resulting files will have short names, yfrog-style
-         * @param boolean 
-         */
-        function setMangleFileName($mangle)
-        {
-            $this->addParameter('mangle_filename', $mangle ? 1 : 0);
-        }
-
-        /**
-         * Adds new parameter
-         * @param name parameter name
-         * @param value parameter value
-         */
-        function addParameter($name, $value)
-        {
-            $this->params[$name] = $value;
-        }
-
-        /**
-         * Removes parameter with specified name
-         * @param name parameter name
-         */
-        function removeParameter($name)
-        {
-            unset($this->params[$name]);
-        }
 
         /**
          * Uploads specified file
-         * @param file file to upload
-         * @param contentType file content type
+         * @param string file file to upload
+         * @param string optsize optional resize options, WIDTHxHEIGHT or 'resample'
+         * @param boolean removeBar optional, if set to true, no information bar is available on generated thumbnail
+         * @param string tags optional, comma-separated tags
+         * @param boolean public optional, if specified then image visibility will be set to public or private
+         * @param string contentType optional, file content type, if not specified we'll try to guess it by extension
+         * @param string frameFilename optional video frame JPEG image
          */
-        function upload($file, $contentType = null)
+        function upload($file, 
+                        $optsize = null,
+                        $removeBar = true,
+                        $tags = null,
+                        $public = null,
+                        $contentType = null,
+                        $frameFilename = null)
         {
             if (!$contentType)
                 $contentType = $this->detectFileContentType($file);
@@ -160,16 +57,41 @@
                 $endpoint = self::IMAGESHACK_API_URL;
             else
                 $endpoint = self::IMAGESHACK_VIDEO_API_URL;
-            $params = $this->makeParams();
-            array_unshift($params, new filepart('fileupload', $file, basename($file), $contentType, 'iso-8859-1'));
+
+            $params = array();
+            $params[] = new filepart('fileupload', $file, basename($file), $contentType, 'iso-8859-1');
+            if ($frameFilename)
+                $params[] = new filepart('frmupload', $frameFilename, basename($frameFilename), 'image/jpeg', 'iso-8859-1');
+            if ($optsize)
+            {
+                $params[] = new stringpart('optimage', 1);
+                $params[] = new stringpart('optsize', $optsize);
+            }
+            if ($tags)
+                $params[] = new stringpart('tags', $tags);
+            $params[] = new stringpart('rembar', $removeBar ? 'yes' : 'no');
+            if ($public !== null)
+                $params[] = new stringpart('public', $public ? 'yes' : 'no');
+            if ($this->cookie)
+                $params[] = new stringpart('cookie', $this->cookie);
+            $params[] = new stringpart('key', $this->developer_key);
+
             return $this->exec($endpoint, $params);
         }
 
         /**
          * Transloads URL
          * @param url URL to transload
+         * @param string optsize optional resize options, WIDTHxHEIGHT or 'resample'
+         * @param boolean removeBar optional, if set to true, no information bar is available on generated thumbnail
+         * @param string tags optional, comma-separated tags
+         * @param boolean public optional, if specified then image visibility will be set to public or private
          */
-        function transload($url)
+        function transload($url,
+                           $optsize = null,
+                           $removeBar = true,
+                           $tags = null,
+                           $public = null)
         {
             $contentType = $this->detectUrlContentType($url);
             if (!$contentType)
@@ -178,8 +100,22 @@
                 $endpoint = self::IMAGESHACK_API_URL;
             else
                 $endpoint = self::IMAGESHACK_VIDEO_API_URL;
-            $params = $this->makeParams();
+
+            $params = array();
             $params[] = new stringpart('url', $url);
+            if ($optsize)
+            {
+                $params[] = new stringpart('optimage', 1);
+                $params[] = new stringpart('optsize', $optsize);
+            }
+            if ($tags)
+                $params[] = new stringpart('tags', $tags);
+            $params[] = new stringpart('rembar', $removeBar ? 'yes' : 'no');
+            if ($public)
+                $params[] = new stringpart('public', $public ? 'yes' : 'no');
+            if ($this->cookie)
+                $params[] = new stringpart('cookie', $this->cookie);
+            $params[] = new stringpart('key', $this->developer_key);
             return $this->exec($endpoint, $params);
         }
 
@@ -213,16 +149,6 @@
 
             }
             return 'application/octet-stream';
-        }
-
-        private function makeParams()
-        {
-            $ret = array();
-            foreach ($this->params as $name => $value)
-            {
-                $ret[] = new stringpart($name, $value);
-            }
-            return $ret;
         }
 
         private function detectUrlContentType($url)

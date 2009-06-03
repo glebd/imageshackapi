@@ -24,26 +24,16 @@ EOT;
         die();
     }
 
-    $uploader = &new ImageShackUploader($key);
-    $cookie = param('cookie');
-    if ($cookie)
-        $uploader->setCookie($cookie);
-    $tags = param('tags');
-    if ($tags)
-        $uploader->setTags($tags);
+    $uploader = &new ImageShackUploader($key, param('cookie'));
     $public = param('public');
     if ($public)
         $public = $public != 'no';
-    if ($public !== null)
-        $uploader->setPublic($public);
-    $rembar = param('remove-bar') != 'no';
-    if ($rembar)
-        $uploader->setRemoveBar($rembar);
-    $optsize = param('optsize');
-    if ($optsize)
-        $uploader->setOptSize($optsize);
 
-    $response = $uploader->transload($url);
+    $response = $uploader->transload($url, 
+                                     param('optsize'), 
+                                     param('remove-bar') != 'no', 
+                                     param('tags'),
+                                     $public);
     print_r($response);
 
 ?>
