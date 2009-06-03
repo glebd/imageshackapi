@@ -59,7 +59,7 @@ class Uploader:
                    optsize = None,
                    remove_bar = True,
                    tags = None,
-                   public = True,
+                   public = None,
                    content_type = None,
                    frame_filename = None):
         ''' upload image or video file
@@ -70,28 +70,75 @@ class Uploader:
         remove_bar: remove information bar on thumbnail
         content_type: content type of file. (optional)
         tags: comma-separated list of tags (optional)
-        public: whenever image is public or not (optional)
-        frame_filename: for video files optional video frame which will be shown in player while movie is loading.
+        public: whenever image is public or not. None means "user default" (optional)
+        frame_filename: for video files optional video frame which will be shown in player while movie is loading. Must be in JPEG format.
 
         Returns:
         returns XML document with information on uploaded image.
         '''
+        return self._upload(filename, None,
+                            optsize, remove_bar,
+                            tags, public,
+                            content_type, frame_filename)
 
+    def uploadURL(self,
+                   url,
+                   optsize = None,
+                   remove_bar = True,
+                   tags = None,
+                   public = None,
+                   frame_filename = None):
+        ''' upload image or video file
+
+        Args:
+        url: URL pointing to image or video file to upload
+        optizie: optional reisizing parameter in format of (widh, height) tuple
+        remove_bar: remove information bar on thumbnail
+        content_type: content type of file. (optional)
+        tags: comma-separated list of tags (optional)
+        public: whenever image is public or not. None means "user default"  (optional)
+        frame_filename: for video files optional video frame which will be shown in player while movie is loading. Must be in JPEG format.
+
+        Returns:
+        returns XML document with information on uploaded image.
+        '''
+        return self._upload(None, url,
+                            optsize, remove_bar,
+                            tags, public,
+                            None, frame_filename)
+
+    def _upload(self,
+                filename,
+                url,
+                optsize = None,
+                remove_bar = True,
+                tags = None,
+                public = True,
+                content_type = None,
+                frame_filename = None):
+
+        if not filename and not url:
+            raise UploadException("No source specified")
+        
         if (self.username and not self.password) or (self.password and not self.username):
             raise UploadException("Must specify both usernane and password")
             
         if self.username and self.cookie:
             raise UploadException("Must specify either usernane/password or cookie but not both")
-        if not exists(filename):
-            raise UploadException("File %s does not exist" % filename)
-
         if frame_filename and not exists(frame_filename):
             raise UploadException("File %s does not exist" % frame_filename)
+        
+        if filename:
+            if not exists(filename):
+                raise UploadException("File %s does not exist" % filename)
             
-        if content_type == None:
-            (content_type, encoding) = guess_type(filename, False)
-            if content_type==None:
-                raise UploadException("Could not guess content/type for input file %s" % filename)
+            if content_type == None:
+                (content_type, encoding) = guess_type(filename, False)
+                if content_type==None:
+                    raise UploadException("Could not guess content/type for input file %s" % filename)
+        else:
+            # TODO: Do HEAD to get content type
+            content_type="image/jpeg" # TEST only!!
 
         if content_type.lower().startswith("image/"):
             u = IMAGE_API_URL
@@ -110,26 +157,38 @@ class Uploader:
             if frame_filename:
                 raise UploadException("Could not specify frame for image files")
 
-        fd = open(filename,'rb')
+        if filename:
+            fd = open(filename,'rb')
+        else:
+            fd = None
         try:
-            data = {'fileupload' : urllib2_file.FileUpload(fd,content_type),
-                    'key' : self.dev_key,
-                    'rembar' : self._yesno(remove_bar),
-                    'public' : self._yesno(public)
+            data = {'key' : self.dev_key,
+                    'rembar' : self._yesno(remove_bar)
                     }
-            tfd = None
+            if fd:
+                data['fileupload']=urllib2_file.FileUpload(fd,content_type)
+            else:
+                data['url']=url
             if frame_filename!=None:
                 tfd = open(frame_filename,'rb')
+            else:
+                tfd = None
             try:
                 if tfd!=None:
                     data['frmupload'] = urllib2_file.FileUpload(tfd,"image/jpeg")
 
                 # Some optional parameters
+                if public:
+                    data['public'] = self._yesno(public)
                 if optsize:
                     data['optimage'] = '1'
                     data['optsize'] = "%dx%d" % optsize
                 if self.cookie:
                     data['cookie'] = self.cookie
+                if self.username:
+                    data['a_username'] = self.username
+                if self.password:
+                    data['a_password'] = self.username
                 if tags:
                     data['tags'] = tags
 
@@ -142,7 +201,8 @@ class Uploader:
                 if tfd!=None:
                     tfd.close()
         finally:
-            fd.close()
+            if fd:
+                fd.close()
 
     def _yesno(self, x):
         if x:
