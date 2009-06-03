@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 '''
-client API library to upload images and videos to yfrog.com
+Client API library to upload images and videos to yfrog.com
+
+Using Yfrog public API, as described here:
+
+http://yfrog.com/api.php
+
 '''
 
 import urllib2_file
@@ -30,6 +35,7 @@ class ServerException(Exception):
         return "ServerException:%d:%s" % (self.code, self.message)
 
 class Uploader:
+    ''' Class to upload images and video to yfrog.com '''
     
     def __init__(self, timeout=HTTP_UPLOAD_TIMEOUT):
         '''Creates uploader object.
