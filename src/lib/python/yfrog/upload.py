@@ -50,7 +50,8 @@ class Uploader:
                   twitter_password,
                   message = None,
                   tags = None,
-                  public = True):
+                  public = True,
+                  source = 'yfrog'):
         '''Uploads local file.
         
         Args:
@@ -60,6 +61,7 @@ class Uploader:
         message: Message to post to twitter. The URL of the image or video is automatically added. (optional)
         tags: comma-separated list of tags (optional)
         public: whenever image is public or not
+        source: Twitter 'posted from' attribute
         
         returns dictionary with with following keys:
         url: url of uploaded image (this is URL for HTML page)
@@ -67,7 +69,8 @@ class Uploader:
         data = {'url' : url,
                 'public' : self._yesno(public),
                 'username' : twitter_username,
-                'password' : twitter_password
+                'password' : twitter_password,
+                'source'   : source
                 }
         if tags:
             data['tags'] = tags
@@ -90,7 +93,8 @@ class Uploader:
                    message = None,
                    content_type = None,
                    tags = None,
-                   public = True):
+                   public = True,
+                   source = 'yfrog'):
         '''Uploads local file.
         
         Args:
@@ -101,6 +105,8 @@ class Uploader:
         content_type: content type of file. (optional)
         tags: comma-separated list of tags (optional)
         public: whenever image is public or not
+        source: Twitter 'posted from' attribute
+
         
         returns dictionary with with following keys:
         url: url of uploaded image (this is URL for HTML page)
@@ -119,7 +125,8 @@ class Uploader:
             data = {'media' : urllib2_file.FileUpload(fd, content_type),
                     'public' : self._yesno(public),
                     'username' : twitter_username,
-                    'password' : twitter_password
+                    'password' : twitter_password,
+                    'source'   : source
                     }
             if tags:
                 data['tags'] = tags

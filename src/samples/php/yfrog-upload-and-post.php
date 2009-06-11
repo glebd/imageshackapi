@@ -6,7 +6,7 @@
     {
 echo <<<EOT
 Usage:
-    yfrog-upload-and-post.php --username USERNAME --password PASSWORD --file FILE [--message MESSAGE] [--tags TAGS] [--public yes | --public no]
+    yfrog-upload-and-post.php --username USERNAME --password PASSWORD --file FILE [--message MESSAGE] [--tags TAGS] [--public yes | --public no] [--source SOURCE]
 EOT;
     }
 
@@ -16,6 +16,7 @@ EOT;
     $tags     = param('tags');
     $public   = param('public');
     $message  = param('message');
+    $source   = param('source');
 
     if (!$username || !$password || !$file)
     {
@@ -23,8 +24,11 @@ EOT;
         die();
     }
 
+    if (!$source)
+        $source = 'yfrog';
+
     $uploader = &new YfrogUploader();
-    $response = $uploader->uploadAndPost($file, $message, $username, $password, $tags, $public == 'yes');
+    $response = $uploader->uploadAndPost($file, $message, $username, $password, $tags, $public == 'yes', YfrogUploader::YFROG_API_TIMEOUT, $source);
     if ($response['stat'])
         echo 'http://twitter.com/' . $username . '/status/' . $response['statusid'];
     else

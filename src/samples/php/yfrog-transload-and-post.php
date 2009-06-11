@@ -16,6 +16,7 @@ EOT;
     $tags     = param('tags');
     $public   = param('public');
     $message  = param('message');
+    $source   = param('source');
 
     if (!$username || !$password || !$url)
     {
@@ -23,8 +24,11 @@ EOT;
         die();
     }
 
+    if (!$source)
+        $source = 'yfrog';
+
     $uploader = &new YfrogUploader();
-    $response = $uploader->transloadAndPost($url, $message, $username, $password, $tags, $public == 'yes');
+    $response = $uploader->transloadAndPost($url, $message, $username, $password, $tags, $public == 'yes', YfrogUploader::YFROG_API_TIMEOUT, $source);
     if ($response['stat'])
         echo 'http://twitter.com/' . $username . '/status/' . $response['statusid'];
     else

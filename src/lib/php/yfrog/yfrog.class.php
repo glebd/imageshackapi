@@ -112,6 +112,8 @@ class YfrogUploader
      * @param tags comma-separated list of tags
      * @param public is uploaded media should be public or not
      * @param timeout connection and response timeout
+     * @param source optional Twitter 'source' parameter to indicate tweets as 'Posted from SOURCE'.
+     * If not specified, 'yfrog' is used
      * @return array 
      *  stat: true/false; true indicates success, false - error
      *  code: error code  (only if stat = false)
@@ -125,7 +127,8 @@ class YfrogUploader
                            $password,
                            $tags = '',
                            $public = true,
-                           $timeout = self::YFROG_API_TIMEOUT)
+                           $timeout = self::YFROG_API_TIMEOUT,
+                           $source = 'yfrog')
     {
         $request = array
         (
@@ -134,7 +137,8 @@ class YfrogUploader
             'tags'     => $tags,
             'public'   => $public ? 'yes' : 'no',
             'media'    => '@' . $filename,
-            'message'  => $message
+            'message'  => $message,
+            'source'   => $source
         );
 
         return $this->exec('uploadAndPost', $request, $timeout);
@@ -151,6 +155,8 @@ class YfrogUploader
      * @param tags comma-separated list of tags
      * @param public is uploaded media should be public or not
      * @param timeout connection and response timeout
+     * @param source optional Twitter 'source' parameter to indicate tweets as 'Posted from SOURCE'.
+     * If not specified, 'yfrog' is used
      * @return array 
      *  stat: true/false; true indicates success, false - error
      *  code: error code  (only if stat = false)
@@ -164,7 +170,8 @@ class YfrogUploader
                               $password,
                               $tags = '',
                               $public = true,
-                              $timeout = self::YFROG_API_TIMEOUT)
+                              $timeout = self::YFROG_API_TIMEOUT,
+                              $source = 'yfrog')
     {
         $request = array
         (
@@ -173,7 +180,8 @@ class YfrogUploader
             'tags'     => $tags,
             'public'   => $public ? 'yes' : 'no',
             'url'      => $url,
-            'message'  => $message
+            'message'  => $message,
+            'source'   => $source
         );
 
         return $this->exec('uploadAndPost', $request, $timeout);
