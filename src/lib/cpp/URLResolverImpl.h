@@ -6,6 +6,7 @@
 
 namespace ImageShack {
     using namespace API::ImageShack;
+    using namespace UPLOAD;
 
 /**
  * ImageShack URL Resolver implementation.

@@ -4,6 +4,7 @@
 CLoginDlg::CLoginDlg(ImageShackAPI &rAPI)
 	: m_rAPI(rAPI)
 {
+    m_strLogin = Configuration().lastUserName;
 }
 
 LRESULT CLoginDlg::OnInitDialog(HWND, LPARAM)
@@ -52,6 +53,7 @@ int CLoginDlg::OnOK()
 	}
 	else
 	{
+        Configuration().lastUserName = GetLogin();
 		EndDialog(IDOK);
 	}
 
@@ -67,7 +69,11 @@ void CLoginDlg::OnFogotPassword()
 
 void CLoginDlg::OnCancel()
 {
-	EndDialog(IDCANCEL);
+	DoDataExchange(TRUE);
+
+    Configuration().lastUserName = GetLogin();
+
+    EndDialog(IDCANCEL);
 }
 
 LRESULT CLoginDlg::OnMouse()

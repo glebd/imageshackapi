@@ -98,4 +98,37 @@ CString GetThisFileVersion()
     return GetVersion(this_file_name);
 }
 
+CString GetProcessVersionInfo(LPCTSTR pszKey)
+{
+    TCHAR szPath[MAX_PATH] = _T("");
+    if (!GetModuleFileName(NULL, szPath, MAX_PATH))
+        return CString();
+
+    DWORD dwHandle = 0;
+    DWORD dwSize = ::GetFileVersionInfoSize(szPath, &dwHandle);
+    if (!dwSize)
+        return CString();
+
+    CAtlArray<BYTE> buffer;
+    buffer.SetCount(dwSize);
+    ZeroMemory(buffer.GetData(), dwSize);
+
+    if (!::GetFileVersionInfo(szPath, dwHandle, dwSize, buffer.GetData()))
+        return CString();
+
+    WORD* langInfo = NULL;
+    UINT size = 0;
+
+    if (!VerQueryValue(buffer.GetData(), _T("\\VarFileInfo\\Translation"), (LPVOID*)&langInfo, &size) || !size)
+        return CString();
+
+    CString sKey = FormatString(_T("\\StringFileInfo\\%04x%04x\\%s"), langInfo[0], langInfo[1], pszKey);
+
+    LPTSTR pValue = NULL;
+    if (!::VerQueryValue(buffer.GetData(), sKey, (LPVOID*)&pValue, &size) || !size)
+        return CString();
+
+    return pValue;
+}
+
 }; //namespace UTIL

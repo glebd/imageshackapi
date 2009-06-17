@@ -1,7 +1,5 @@
 #pragma once
 
-#include "util/NonCopyable.h"
-
 namespace TEMPL {
 
 namespace HELPER {
@@ -34,7 +32,7 @@ namespace HELPER {
  * @author Alexander Kozlov
  */
 template < typename T, typename TDestructor = HELPER::TDelete<T> >
-class AutoPtr : private NonCopyable
+class AutoPtr
 {
 public:
     AutoPtr()
@@ -113,6 +111,10 @@ public:
 
 public:
     T* m_pT;
+
+private:
+    AutoPtr(const AutoPtr &);
+    AutoPtr& operator = (const AutoPtr &);
 };
 
 

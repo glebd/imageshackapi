@@ -7,6 +7,7 @@ using namespace HTTP;
 
 #include "uploader/stubs.h"
 using namespace UPLOAD;
+using namespace UPLOAD::TLIB;
 
 #include "xml/XmlParser.h"
 #include "xml/xml_op.h"
@@ -229,7 +230,7 @@ bool ImageShackAPI::Login(LPCWSTR pszUserName, LPCWSTR pszPassword, IErrorRespon
 
 bool ImageShackAPI::IsLoggedIn() const 
 {
-	return !m_pPrivate->cookie.IsEmpty();
+	return !m_pPrivate->auth_info.cookie.IsEmpty();
 }
 
 IUserInfo* ImageShackAPI::GetUserInfo() const

@@ -23,7 +23,7 @@
 // Http user agent name for API
 #define HTTP_USER_AGENT	_T("ImageShackAPI")
 // Config Registry Key Name
-#define _PROJECT_REGKEY	_T("ImageShack")
+#define _PROJECT_REGKEY	_T("ImageShackAPI")
 
 #pragma warning (disable: 4251)
 #pragma warning (disable: 4995)
@@ -72,7 +72,6 @@ using namespace ATL;
 #include "API/Win32/DragAndDrop.h"
 #include "API/Win32/Thread.h"
 using namespace API::Win32;
-#include "util/NonCopyable.h"
 #include "templates/SmartPtr.h"
 using namespace TEMPL;
 

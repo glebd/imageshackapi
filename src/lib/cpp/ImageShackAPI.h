@@ -3,12 +3,9 @@
 #include <atlstr.h>
 #include <atlcoll.h>
 #include "ImageShackBase.h"
-#include "util/Util.h"
 
 #include "uploader/Uploader.h"
 #include "uploader/templates.h"
-using namespace UPLOAD;
-using namespace TLIB;
 
 namespace API {
 namespace ImageShack {
@@ -149,7 +146,14 @@ struct UploadInfo : public IUploadInfo
 
     operator CString () const
     {
-        return UTIL::ExtractFileName(file);
+        return GetFileName();
+    }
+
+    CString GetFileName() const
+    {
+        int idx = file.ReverseFind('\\');
+        if (-1 == idx) idx = file.ReverseFind('/');
+        return idx == -1 ? file : file.Mid(idx+1);
     }
 
     // fields for internal use (any value will be reset)
@@ -157,8 +161,6 @@ struct UploadInfo : public IUploadInfo
 	CString cookie;
 	CString username;
 	CString password;
-
-    typedef IUploadInfo PrimaryInterface;
 };
 
 /**
@@ -235,7 +237,7 @@ typedef UPLOAD::IUniversalUploaderCancel                                    Uplo
 typedef UPLOAD::UniversalUploaderException                                  UploaderException;
 typedef UPLOAD::UniversalUploaderErrorAction                                UploaderErrorAction;
 typedef UPLOAD::UniversalUploaderErrorInfo                                  UploaderErrorInfo;
-typedef TLIB::UniversalUploaderListenerComposite<UploadInfo, UploadResult>  UploaderListenerComposite;
+typedef UPLOAD::TLIB::UniversalUploaderListenerComposite<UploadInfo, UploadResult>  UploaderListenerComposite;
 
 // forward declaration
 struct ImageShackAPIPrivate;

@@ -314,6 +314,7 @@ inline BOOL IsWow64()
 // get dll version
 CString GetThisFileVersion();
 CString GetVersion(LPCTSTR pszFile);
+CString GetProcessVersionInfo(LPCTSTR pszKey);
 
 /**
  * Returns DLL path (with slash at the end of line).

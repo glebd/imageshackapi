@@ -40,24 +40,37 @@ private:
 public:
 	Configuration(void)
 	{
-		LPCTSTR pszKey;
+		CString strKey;
 
 		if (IsOSVistaOrHigher())
-			pszKey = _T("Software\\Microsoft\\Internet Explorer\\LowRegistry\\") _PROJECT_REGKEY;
+			strKey = _T("Software\\Microsoft\\Internet Explorer\\LowRegistry\\") _PROJECT_REGKEY;
 		else
-			pszKey = _T("Software\\") _PROJECT_REGKEY;
+			strKey = _T("Software\\") _PROJECT_REGKEY;
 
-		key.CreateEx(HKEY_CURRENT_USER, pszKey);
+        CString strProductName = GetProcessVersionInfo(_T("ProductName"));
+        if (!strProductName.IsEmpty())
+            strKey += (CString)_T("\\") + strProductName;
+        else
+        {
+	        TCHAR szExeFileName[MAX_PATH+1] = _T("");
+	        ZeroMemory(szExeFileName, sizeof(szExeFileName));
+	        GetModuleFileName(NULL, szExeFileName, MAX_PATH);
+
+            strKey += (CString)_T("\\") + ExtractOnlyFileName(szExeFileName);
+        }
+
+		key.CreateEx(HKEY_CURRENT_USER, strKey);
 	}
 
 	// Write logs
 	PROPERTY_BOOL(log, false)
+	PROPERTY_STRING(lastUserName, _T(""))
 
 	RESOURCE_STRING(urlLoginAPI, IDS_LOGIN_API_URL)
 	RESOURCE_STRING(urlMyImagesPage, IDS_MY_IMAGES_URL)
 	RESOURCE_STRING(urlForgotPassword, IDS_FORGOT_PASSWORD)
 	// Force Server
-	PROPERTY_STRING(ForceServer, _T(""));
+	PROPERTY_STRING(ForceServer, _T(""))
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
