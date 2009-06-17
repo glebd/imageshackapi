@@ -21,7 +21,7 @@ CString URLResolver::GetURL(const UploadInfo &item)
 {
     CString strFileExt = ExtractFileExtension(item.file);
 
-    if (item.content_type.Find( _T("image/") ) != -1 || strFileExt == _T("swf"))
+    if (IsHttpURL(item.file) || item.content_type.Find( _T("image/") ) != -1 || strFileExt == _T("swf"))
     {
         return m_image_resolver.GetURL();
     }

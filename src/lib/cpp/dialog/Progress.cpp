@@ -114,6 +114,7 @@ void CProgress::UpdateProgress(int iItem, int iTotal, LPCTSTR pszMessage)
     if (m_imglstPreview && m_imglstPreview.GetImageCount() <= iItem)
     {
         ImageHelper(m_imglstPreview).Add(strFile);
+        m_preview.InvalidateRect(NULL);
     }
 }
 
@@ -141,7 +142,6 @@ void CProgress::OnChangeProgress(DWORD dwProgress, DWORD dwProgressMax, DWORD dw
     }
 
 #ifdef _DEBUG
-    ATLASSERT(nNewPos >= m_progress.GetPos());
     int iLower, iUpper;
     m_progress.GetRange(iLower, iUpper);
     ATLASSERT(nNewPos >= iLower && nNewPos <= iUpper);

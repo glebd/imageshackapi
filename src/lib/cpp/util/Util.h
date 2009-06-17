@@ -95,6 +95,14 @@ inline bool IsFileURL(LPCTSTR url)
 }
 
 /**
+ * Determines if URL is a HTTP url.
+ */
+inline bool IsHttpURL(LPCTSTR url)
+{
+	return ! _tcsnicmp(url, _T("http://"), 7);
+}
+
+/**
  * Determines if URL is a file url.
  */
 inline bool IsFileURL(const CComBSTR &url)

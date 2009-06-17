@@ -126,12 +126,10 @@ public:// IUniversalUploader
         if (!m_items.GetSize())
             throw UniversalUploaderException("There is no items");
 
-        if (m_iCurrentItemIndex < 0 || m_iCurrentItemIndex >= m_items.GetSize())
-            throw UniversalUploaderException(FormatString( _T("Index Out Of Bounds: %i"), m_iCurrentItemIndex ));
-
-        return m_result[m_iCurrentItemIndex];
+        return m_result[m_result.GetSize()-1];
     }
-	virtual const TResult& GetCurrentResult() const
+
+    virtual const TResult& GetCurrentResult() const
     {
         ATLASSERT(m_iCurrentItemIndex >= 0 && m_iCurrentItemIndex < m_result.GetSize());
 
@@ -140,7 +138,8 @@ public:// IUniversalUploader
 
         return m_result[m_result.GetSize()-1];
     }
-	virtual const CSimpleArray<TResult>& GetResult() const
+
+    virtual const CSimpleArray<TResult>& GetResult() const
     {
         return m_result;
     }

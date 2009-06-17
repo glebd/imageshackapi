@@ -1,3 +1,16 @@
+//////////////////////////////////////////////////////////////////////////
+// ImageShackAPI.h - Declaration of ImageShackAPI classes
+//     
+// Requires:
+//   ImageShackBase.h
+//   uploader/Uploader.h
+//   uploader/templates.h
+//   uploader/stubs.h
+//   uploader/safe.h
+//   templates/SmartPtr.h
+//
+//////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include <atlstr.h>
@@ -81,7 +94,7 @@ public:
 // implementation
 struct UploadInfo : public IUploadInfo
 {
-	CString file;
+	CString file; // it should be full path to file or HTTP URL
     CString content_type;
 	CString thumbnail;
     CString size;
@@ -295,10 +308,10 @@ public:
 
 	static void UploadFiles(const char* pszDevKey, LPCWSTR* pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener = UploaderListenerSmartPtr(), const ProgressListenerSmartPtr &progressListener = ProgressListenerSmartPtr());
 
-    /**
-     * Open My Images Page
-     */
+    // Open My Images Pages
     void OpenMyImagesPage();
+    // Open My Videos Pages
+    void OpenMyVideosPage();
 
 private:
     ImageShackAPIPrivate* m_pPrivate;

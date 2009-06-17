@@ -93,7 +93,8 @@ XML_END_SERIALIZE_MAP()
 
 HTTP_DATA_MAP(API::ImageShack::UploadInfo)
     HTTP_STRING_CONSTANT("xml", "newformat")
-    HTTP_FILE_ELEMENT2EX("fileupload", file, (CStringA)ExtractFileName(item.file), (CStringA)item.content_type)
+    HTTP_FILE_ELEMENT2EX_IF("fileupload", file, (CStringA)ExtractFileName(item.file), (CStringA)item.content_type, !IsHttpURL(item.file))
+    HTTP_STRING2_IF("url", file, IsHttpURL(item.file))
     HTTP_STRING2("content-type", content_type)
     HTTP_STRING2("optsize", size)
     HTTP_STRING_CONSTANT_IF("optimage", "1", !item.size.IsEmpty())
@@ -271,8 +272,13 @@ void ImageShackAPI::UploadFiles(const IUploadInfo** pFiles, UINT nCount, const U
     for (UINT i = 0; i < nCount; ++i)
     {
         UploadInfo item(pFiles[i]);
+
+        if (IsFileURL(item.file))
+            item.file = ToFile(item.file);
+
         if (item.content_type.IsEmpty())//we need content type to process item
             item.content_type = GetContentType(ExtractFileExtension(item.file));
+
         // init internal fields
 	    item.devkey = m_pPrivate->devkey;
         if (!m_pPrivate->auth_info.cookie.IsEmpty())
@@ -339,4 +345,9 @@ bool operator >> (const CStringA &strResponse, UPLOAD::UniversalUploaderErrorInf
 void ImageShackAPI::OpenMyImagesPage()
 {
     API::Win32::Shell::Execute(Configuration().urlMyImagesPage);
+}
+
+void ImageShackAPI::OpenMyVideosPage()
+{
+    API::Win32::Shell::Execute(Configuration().urlMyVideosPage);
 }
