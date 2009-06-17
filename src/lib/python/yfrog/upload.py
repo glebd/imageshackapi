@@ -51,7 +51,8 @@ class Uploader:
                   message = None,
                   tags = None,
                   public = True,
-                  source = 'yfrog'):
+                  source = 'yfrog',
+                  auth = None):
         '''Uploads local file.
         
         Args:
@@ -74,6 +75,8 @@ class Uploader:
                 }
         if tags:
             data['tags'] = tags
+        if auth:
+            data['auth'] = auth
         if message:
             data['message'] = message
             apiurl = API_URL % "uploadAndPost"
@@ -94,7 +97,8 @@ class Uploader:
                    content_type = None,
                    tags = None,
                    public = True,
-                   source = 'yfrog'):
+                   source = 'yfrog',
+                   auth = None):
         '''Uploads local file.
         
         Args:
@@ -130,6 +134,8 @@ class Uploader:
                     }
             if tags:
                 data['tags'] = tags
+            if auth:
+                data['auth'] = auth
             if message:
                 data['message'] = message
                 apiurl = API_URL % "uploadAndPost"
