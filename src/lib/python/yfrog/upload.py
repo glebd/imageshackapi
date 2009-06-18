@@ -52,7 +52,8 @@ class Uploader:
                   tags = None,
                   public = True,
                   source = 'yfrog',
-                  auth = None):
+                  auth = None,
+                  key = None):
         '''Uploads local file.
         
         Args:
@@ -63,6 +64,7 @@ class Uploader:
         tags: comma-separated list of tags (optional)
         public: whenever image is public or not
         source: Twitter 'posted from' attribute
+        key: Developer key. See http://code.google.com/p/imageshackapi/wiki/DeveloperKey
         
         returns dictionary with with following keys:
         url: url of uploaded image (this is URL for HTML page)
@@ -77,6 +79,8 @@ class Uploader:
             data['tags'] = tags
         if auth:
             data['auth'] = auth
+        if key:
+            data['key'] = key
         if message:
             data['message'] = message
             apiurl = API_URL % "uploadAndPost"
@@ -98,7 +102,8 @@ class Uploader:
                    tags = None,
                    public = True,
                    source = 'yfrog',
-                   auth = None):
+                   auth = None,
+                   key = None):
         '''Uploads local file.
         
         Args:
@@ -110,6 +115,7 @@ class Uploader:
         tags: comma-separated list of tags (optional)
         public: whenever image is public or not
         source: Twitter 'posted from' attribute
+        key: Developer key. See http://code.google.com/p/imageshackapi/wiki/DeveloperKey
 
         
         returns dictionary with with following keys:
@@ -136,6 +142,8 @@ class Uploader:
                 data['tags'] = tags
             if auth:
                 data['auth'] = auth
+            if key:
+                data['key'] = key
             if message:
                 data['message'] = message
                 apiurl = API_URL % "uploadAndPost"

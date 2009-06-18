@@ -40,6 +40,7 @@ class YfrogUploader
      * @param tags comma-separated list of tags
      * @param public is uploaded media should be public or not
      * @param timeout connection and response timeout
+     * @param key developer key, see http://code.google.com/p/imageshackapi/wiki/DeveloperKey
      * @return array 
      *  stat: true/false; true indicates success, false - error
      *  code: error code  (only if stat = false)
@@ -52,7 +53,8 @@ class YfrogUploader
                     $password,
                     $tags = '',
                     $public = true,
-                    $timeout = self::YFROG_API_TIMEOUT)
+                    $timeout = self::YFROG_API_TIMEOUT,
+                    $key = null)
     {
         $request = array
         (
@@ -62,6 +64,8 @@ class YfrogUploader
             'public'   => $public ? 'yes' : 'no',
             'media'    => '@' . $filename
         );
+        if ($key)
+            $request['key'] = $key;
 
         return $this->exec('upload', $request, $timeout);
     }
@@ -75,6 +79,7 @@ class YfrogUploader
      * @param tags comma-separated list of tags
      * @param public is uploaded media should be public or not
      * @param timeout connection and response timeout
+     * @param key developer key, see http://code.google.com/p/imageshackapi/wiki/DeveloperKey
      * @return array 
      *  stat: true/false; true indicates success, false - error
      *  code: error code  (only if stat = false)
@@ -87,7 +92,8 @@ class YfrogUploader
                        $password,
                        $tags = '',
                        $public = true,
-                       $timeout = self::YFROG_API_TIMEOUT)
+                       $timeout = self::YFROG_API_TIMEOUT,
+                       $key = null)
     {
         $request = array
         (
@@ -97,6 +103,8 @@ class YfrogUploader
             'public'   => $public ? 'yes' : 'no',
             'url'      => $url
         );
+        if ($key)
+            $request['key'] = $key;
 
         return $this->exec('upload', $request, $timeout);
     }
@@ -114,6 +122,7 @@ class YfrogUploader
      * @param timeout connection and response timeout
      * @param source optional Twitter 'source' parameter to indicate tweets as 'Posted from SOURCE'.
      * If not specified, 'yfrog' is used
+     * @param key developer key, see http://code.google.com/p/imageshackapi/wiki/DeveloperKey
      * @return array 
      *  stat: true/false; true indicates success, false - error
      *  code: error code  (only if stat = false)
@@ -128,7 +137,8 @@ class YfrogUploader
                            $tags = '',
                            $public = true,
                            $timeout = self::YFROG_API_TIMEOUT,
-                           $source = 'yfrog')
+                           $source = 'yfrog',
+                           $key = null)
     {
         $request = array
         (
@@ -140,6 +150,8 @@ class YfrogUploader
             'message'  => $message,
             'source'   => $source
         );
+        if ($key)
+            $request['key'] = $key;
 
         return $this->exec('uploadAndPost', $request, $timeout);
     }
@@ -157,6 +169,7 @@ class YfrogUploader
      * @param timeout connection and response timeout
      * @param source optional Twitter 'source' parameter to indicate tweets as 'Posted from SOURCE'.
      * If not specified, 'yfrog' is used
+     * @param key developer key, see http://code.google.com/p/imageshackapi/wiki/DeveloperKey
      * @return array 
      *  stat: true/false; true indicates success, false - error
      *  code: error code  (only if stat = false)
@@ -171,7 +184,8 @@ class YfrogUploader
                               $tags = '',
                               $public = true,
                               $timeout = self::YFROG_API_TIMEOUT,
-                              $source = 'yfrog')
+                              $source = 'yfrog',
+                              $key = null)
     {
         $request = array
         (
@@ -183,6 +197,8 @@ class YfrogUploader
             'message'  => $message,
             'source'   => $source
         );
+        if ($key)
+            $request['key'] = $key;
 
         return $this->exec('uploadAndPost', $request, $timeout);
     }
