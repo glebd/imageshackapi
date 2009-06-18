@@ -185,7 +185,7 @@ private:
     typedef WeekPtrLocker<typename SmartReleasePtr<ISimpleUploader>::WeekPtr> Locker;
 
 public: // implementation of SimpleUploader
-	virtual bool Upload(const CString &strURL, const MultipartFormDataRequest &request);
+	virtual bool Upload(const CStringW &strURL, const MultipartFormDataRequest &request);
 
 	virtual void Cancel();
 

@@ -37,8 +37,8 @@ public:
 // implementation
 struct ErrorResponse : public IErrorResponse
 {
-	CString code;
-	CString message;
+	CStringW code;
+	CStringW message;
 
     ErrorResponse() {}
     ErrorResponse(LPCWSTR pszMessage) : message(pszMessage) {}
@@ -73,34 +73,15 @@ public:
 /**
  * Upload Info
  */
-class IUploadInfo
+struct UploadInfo
 {
-public:
-	virtual LPCWSTR GetFile() const = 0;
-    virtual void SetFile(LPCWSTR pszValue) = 0;
-	virtual LPCWSTR GetContentType() const = 0;
-    virtual void SetContentType(LPCWSTR pszValue) = 0;
-	virtual LPCWSTR GetThumbnail() const = 0;
-    virtual void SetThumbnail(LPCWSTR pszValue) = 0;
-    virtual LPCWSTR GetSize() const = 0;
-    virtual void SetSize(LPCWSTR pszValue) = 0;
-    virtual bool GetRemoveBar() const = 0;
-    virtual void SetRemoveBar(bool bValue) = 0;
-    virtual bool IsPublic() const = 0;
-    virtual void SetPublic(bool bValue) = 0;
-	virtual LPCWSTR GetTags() const = 0;
-    virtual void SetTags(LPCWSTR pszValue) = 0;
-};
-// implementation
-struct UploadInfo : public IUploadInfo
-{
-	CString file; // it should be full path to file or HTTP URL
-    CString content_type;
-	CString thumbnail;
-    CString size;
+	CStringW file; // it should be full path to file or HTTP URL
+    CStringW content_type;
+	CStringW thumbnail;
+    CStringW size;
     bool    remove_bar;
     bool    is_public;
-    CString tags;
+    CStringW tags;
     
     UploadInfo()
         : remove_bar(false)
@@ -115,65 +96,28 @@ struct UploadInfo : public IUploadInfo
     {
     }
 
-    UploadInfo(const IUploadInfo* pInfo)
-    {
-        ATLASSERT(pInfo);
-        file = pInfo->GetFile();
-        content_type = pInfo->GetContentType();
-        thumbnail = pInfo->GetThumbnail();
-        size = pInfo->GetSize();
-        remove_bar = pInfo->GetRemoveBar();
-        is_public = pInfo->IsPublic();
-        tags = pInfo->GetTags();
-    }
-
-	LPCWSTR GetFile() const { return file; }
-    void SetFile(LPCWSTR pszValue) { file = pszValue; }
-	LPCWSTR GetContentType() const { return content_type; }
-    void SetContentType(LPCWSTR pszValue) { content_type = pszValue; }
-	LPCWSTR GetThumbnail() const  { return thumbnail; }
-    void SetThumbnail(LPCWSTR pszValue)  { thumbnail = pszValue; }
-    LPCWSTR GetSize() const { return size; }
-    void SetSize(LPCWSTR pszValue) { size = pszValue; }
-    bool GetRemoveBar() const { return remove_bar; }
-    void SetRemoveBar(bool bValue) { remove_bar = bValue; }
-    bool IsPublic() const  { return is_public; }
-    void SetPublic(bool bValue)  { is_public = bValue; }
-	LPCWSTR GetTags() const  { return tags; }
-    void SetTags(LPCWSTR pszValue) { tags = pszValue; }
-
     void SetSize(int width, int height)
     {
-        size.Format( _T("%ix%i"), width, height );
-    }
-
-    operator const IUploadInfo* () const
-    {
-        return this;
-    }
-
-    operator IUploadInfo* ()
-    {
-        return this;
+        size.Format(L"%ix%i", width, height );
     }
 
     operator CString () const
     {
-        return GetFileName();
+        return (CString)GetFileName();
     }
 
-    CString GetFileName() const
+    CStringW GetFileName() const
     {
-        int idx = file.ReverseFind('\\');
-        if (-1 == idx) idx = file.ReverseFind('/');
+        int idx = file.ReverseFind(L'\\');
+        if (-1 == idx) idx = file.ReverseFind(L'/');
         return idx == -1 ? file : file.Mid(idx+1);
     }
 
     // fields for internal use (any value will be reset)
-	CString devkey;
-	CString cookie;
-	CString username;
-	CString password;
+	CStringW devkey;
+	CStringW cookie;
+	CStringW username;
+	CStringW password;
 };
 
 /**
@@ -184,16 +128,16 @@ struct UploadResult
     struct FileInfo
     {
         ULONGLONG size;
-        CString content_type;
-        CString file;
+        CStringW content_type;
+        CStringW file;
 
         FileInfo() : size(0) {}
     };
 
     struct Files
     {
-        CString server;
-        CString bucket;
+        CStringW server;
+        CStringW bucket;
 
         FileInfo image;
         FileInfo thumbnail;
@@ -209,7 +153,7 @@ struct UploadResult
 
     struct VideoInfo
     {
-        CString status;
+        CStringW status;
         int duration;
 
         VideoInfo() : duration(0) {}
@@ -217,25 +161,25 @@ struct UploadResult
 
     struct Links
     {
-        CString image_link;
-        CString image_html;
-        CString image_bb;
-        CString image_bb2;
-        CString yfrog_link;
-        CString yfrog_thumb;
-        CString thumb_link;
-        CString thumb_html;
-        CString thumb_bb;
-        CString thumb_bb2;
-        CString ad_link;
-        CString video_embed;
-        CString done_page;
+        CStringW image_link;
+        CStringW image_html;
+        CStringW image_bb;
+        CStringW image_bb2;
+        CStringW yfrog_link;
+        CStringW yfrog_thumb;
+        CStringW thumb_link;
+        CStringW thumb_html;
+        CStringW thumb_bb;
+        CStringW thumb_bb2;
+        CStringW ad_link;
+        CStringW video_embed;
+        CStringW done_page;
     };
 
     Files files;
     Resolution resolution;
     VideoInfo video_info;
-    CString visibility;
+    CStringW visibility;
     Links links;
 };
 
@@ -269,7 +213,7 @@ public:
     ImageShackAPI(const ImageShackAPI& );
     ~ImageShackAPI();
 
-	// Check login/password
+	// Check login/password. After successful login use GetUserInfo() to get user information.
 	bool Login(LPCWSTR pszUserName, LPCWSTR pszPassword, IErrorResponse* pError = NULL);
     // Open Login dialog.
 	bool Login();
@@ -293,17 +237,11 @@ public:
     void SetPluginInfo(LPCWSTR pszPluginName, LPCWSTR pszPluginVersion);
 
     // show preview and start upload with logged in user (or show login dialog)
-    void UploadFiles(const IUploadInfo** pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener = UploaderListenerSmartPtr(), const ProgressListenerSmartPtr &progressListener = ProgressListenerSmartPtr());
+    void UploadFiles(const UploadInfo* pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener = UploaderListenerSmartPtr(), const ProgressListenerSmartPtr &progressListener = ProgressListenerSmartPtr());
 
-    template <typename T>
-    void UploadFiles(const CSimpleArray<T> &arFiles, const UploaderListenerSmartPtr &uploaderListener = UploaderListenerSmartPtr(), const ProgressListenerSmartPtr &progressListener = ProgressListenerSmartPtr())
+    void UploadFiles(const CSimpleArray<UploadInfo> &arFiles, const UploaderListenerSmartPtr &uploaderListener = UploaderListenerSmartPtr(), const ProgressListenerSmartPtr &progressListener = ProgressListenerSmartPtr())
     {
-        CSimpleArray<const IUploadInfo*> arItems;
-        for (int i = 0; i < arFiles.GetSize(); ++i)
-        {
-            arItems.Add((const IUploadInfo*)arFiles[i]);
-        }
-        UploadFiles(arItems.GetData(), arItems.GetSize(), uploaderListener, progressListener);
+        UploadFiles(arFiles.GetData(), arFiles.GetSize(), uploaderListener, progressListener);
     }
 
 	static void UploadFiles(const char* pszDevKey, LPCWSTR* pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener = UploaderListenerSmartPtr(), const ProgressListenerSmartPtr &progressListener = ProgressListenerSmartPtr());

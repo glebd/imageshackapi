@@ -26,7 +26,7 @@ public:
 	/**
 	 * Called after upload complete.
 	 */
-	virtual void OnComplete(long nStatus, const CString &strContentType, const CStringA &strResponse) = 0;
+	virtual void OnComplete(long nStatus, const CStringA &strContentType, const CStringA &strResponse) = 0;
 
 	/**
 	 * Called when upload was cancelled.
@@ -55,7 +55,7 @@ public:
 	/**
 	 * Send/POST request.
 	 */
-    virtual bool Upload(const CString &strURL, const MultipartFormDataRequest &request) = 0;
+    virtual bool Upload(const CStringW &strURL, const MultipartFormDataRequest &request) = 0;
 
 	/**
 	 * Set Upload Listener
@@ -92,8 +92,8 @@ typedef enum {
  * Universal Uploader Error info.
  */
 struct UniversalUploaderErrorInfo {
-	CString strErrorCode;
-	CString strErrorMessage;
+	CStringW strErrorCode;
+	CStringW strErrorMessage;
 };
 
 /**
@@ -276,7 +276,7 @@ public:
      *
      * Method must throw exception to stop upload.
      */
-    virtual UniversalUploaderParserResult Parse(long nStatus, const CString &strContentType, const CStringA &strResponse, T &tResult, UniversalUploaderErrorInfo &eiErrorInfo) = 0;
+    virtual UniversalUploaderParserResult Parse(long nStatus, const CStringA &strContentType, const CStringA &strResponse, T &tResult, UniversalUploaderErrorInfo &eiErrorInfo) = 0;
 
 	/**
 	 * Called to destroy
@@ -296,7 +296,7 @@ public:
     /**
      * Must return URL for POST data request
      */
-    virtual CString GetURL(const T &item) = 0;
+    virtual CStringW GetURL(const T &item) = 0;
 
 	/**
 	 * Called to destroy
@@ -320,13 +320,13 @@ public:
 	{
 	}
 
-	const CString &GetMessage() const
+	const CStringW &GetMessage() const
 	{
 		return m_strMessage;
 	}
 
 private:
-	CString m_strMessage;
+	CStringW m_strMessage;
 };
 
 /**

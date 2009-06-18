@@ -88,7 +88,7 @@ void CProgress::ShowProgress(bool bShow)
  */
 void CProgress::UpdateProgress(int iItem, int iTotal, LPCTSTR pszMessage)
 {
-    CString strFile = m_uploader.GetCurrentItem().file;
+    CString strFile = (CString)m_uploader.GetCurrentItem().file;
     CString strFileName = ExtractFileName(strFile);
 
     if (iTotal > 1)

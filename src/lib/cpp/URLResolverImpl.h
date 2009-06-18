@@ -33,7 +33,7 @@ public:
     /**
      * Must return URL for POST data request
      */
-    virtual CString GetURL(const UploadInfo &item);
+    virtual CStringW GetURL(const UploadInfo &item);
 
     /**
 	 * Called to destroy

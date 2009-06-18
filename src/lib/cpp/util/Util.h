@@ -53,9 +53,24 @@ inline CString FormatString(UINT nFormatID, ...)
 /**
  * Returns formatted string
  */
-inline CString FormatString(LPCTSTR pszFormatID, ...)
+inline CStringA FormatString(LPCSTR pszFormatID, ...)
 {
-	CString strResult;
+	CStringA strResult;
+
+	va_list argList;
+	va_start( argList, pszFormatID );
+	strResult.FormatV( pszFormatID, argList );
+	va_end( argList );
+
+	return strResult;
+}
+
+/**
+ * Returns formatted string
+ */
+inline CStringW FormatString(LPCWSTR pszFormatID, ...)
+{
+	CStringW strResult;
 
 	va_list argList;
 	va_start( argList, pszFormatID );
@@ -85,29 +100,28 @@ inline CString GetWindowText(CWindow wnd)
 #define GetWindowTitle() UTIL::GetWindowText(*this)
 #define GetParentTitle() UTIL::GetWindowText(this->GetParent())
 
-
 /**
  * Determines if URL is a file url.
  */
-inline bool IsFileURL(LPCTSTR url)
+inline bool IsFileURL(LPCSTR url)
 {
-	return ! _tcsnicmp(url, _T("file:///"), 8);
+	return ! strnicmp(url, "file:///", 8);
+}
+inline bool IsFileURL(LPCWSTR url)
+{
+	return ! wcsnicmp(url, L"file:///", 8);
 }
 
 /**
  * Determines if URL is a HTTP url.
  */
-inline bool IsHttpURL(LPCTSTR url)
+inline bool IsHttpURL(LPCSTR url)
 {
-	return ! _tcsnicmp(url, _T("http://"), 7);
+	return ! strnicmp(url, "http://", 7);
 }
-
-/**
- * Determines if URL is a file url.
- */
-inline bool IsFileURL(const CComBSTR &url)
+inline bool IsHttpURL(LPCWSTR url)
 {
-	return ! _wcsnicmp(url, L"file:///", 8);
+	return ! wcsnicmp(url, L"http://", 7);
 }
 
 /**
@@ -206,10 +220,16 @@ inline CString ExtractOnlyFileName(const CString &file)
 /**
  * Extracts File Extension from path
  */
-inline CString ExtractFileExtension(const CString &file)
+inline CStringA ExtractFileExtension(const CStringA &file)
 {
 	int idx = file.ReverseFind('.');
-	return idx == -1 ? CString() : file.Mid(idx+1).MakeLower();
+	return idx == -1 ? CStringA() : file.Mid(idx+1).MakeLower();
+}
+
+inline CStringW ExtractFileExtension(const CStringW &file)
+{
+	int idx = file.ReverseFind(L'.');
+	return idx == -1 ? CStringW() : file.Mid(idx+1).MakeLower();
 }
 
 /**

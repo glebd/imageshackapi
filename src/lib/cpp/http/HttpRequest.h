@@ -117,10 +117,10 @@ public:
 #define HTTP_STRING_SIMPLE_ARRAY(element)            if (item.element.GetSize()) { for (int i = 0; i < item.element.GetSize(); ++i) request.AddKeyValue(#element, EncodeToUTF8(item.element[i])); }
 #define HTTP_STRING_SIMPLE_ARRAY2(element, member)   if (item.member.GetSize()) { for (int i = 0; i < item.member.GetSize(); ++i) request.AddKeyValue(element, EncodeToUTF8(item.member[i])); }
 
-#define HTTP_FILE_ELEMENT(element)                                      { API::Win32::File file; if (file.Open(item.element)) request.AddKeyValue(#element, file); }
-#define HTTP_FILE_ELEMENT2(element, member)                             { API::Win32::File file; if (file.Open(item.member)) request.AddKeyValue(element, file); }
-#define HTTP_FILE_ELEMENT2EX(element, member, file_name, content_type)  { API::Win32::File file; if (file.Open(item.member)) request.AddKeyValue(element, file, content_type, file_name); }
-#define HTTP_FILE_ELEMENT2EX_IF(element, member, file_name, content_type, condition) if (condition) { API::Win32::File file; if (file.Open(item.member)) request.AddKeyValue(element, file, content_type, file_name); }
+#define HTTP_FILE_ELEMENT(element)                                      { API::Win32::File file; if (file.Open((CString)item.element)) request.AddKeyValue(#element, file); }
+#define HTTP_FILE_ELEMENT2(element, member)                             { API::Win32::File file; if (file.Open((CString)item.member)) request.AddKeyValue(element, file); }
+#define HTTP_FILE_ELEMENT2EX(element, member, file_name, content_type)  { API::Win32::File file; if (file.Open((CString)item.member)) request.AddKeyValue(element, file, content_type, file_name); }
+#define HTTP_FILE_ELEMENT2EX_IF(element, member, file_name, content_type, condition) if (condition) { API::Win32::File file; if (file.Open((CString)item.member)) request.AddKeyValue(element, file, content_type, file_name); }
 
 #define HTTP_ENUM(element)              request.AddKeyValue(#element, enum_to_string(item.element));
 #define HTTP_ENUM2(element, member)     request.AddKeyValue(element, enum_to_string(item.member));

@@ -38,7 +38,8 @@ namespace XML
 
 		Node SelectSingleNode(const CString &xPath);
 
-		bool GetValue(CString &value) const;
+		bool GetValue(CStringA &value) const;
+		bool GetValue(CStringW &value) const;
 		bool GetValue(ULONGLONG &value) const;
 		bool GetValue(LONGLONG &value) const;
 		bool GetValue(DWORD &value) const;
@@ -150,7 +151,12 @@ namespace XML
 		return node.GetValue(value);
 	}
 
-	inline bool xml_handle(Node &node, CString &value)
+	inline bool xml_handle(Node &node, CStringA &value)
+	{
+		return node.GetValue(value);
+	}
+
+	inline bool xml_handle(Node &node, CStringW &value)
 	{
 		return node.GetValue(value);
 	}
@@ -171,13 +177,25 @@ namespace XML
 		return true;
 	}
 
-    inline bool xml_handle(CString &strResult, LPCTSTR pszValue)
+    inline bool xml_handle(CStringA &strResult, LPCSTR pszValue)
     {
 	    strResult = pszValue;
 	    return true;
     }
 
-    inline bool xml_handle(CString &strResult, const CString &strValue)
+    inline bool xml_handle(CStringW &strResult, LPCWSTR pszValue)
+    {
+	    strResult = pszValue;
+	    return true;
+    }
+
+    inline bool xml_handle(CStringA &strResult, const CStringA &strValue)
+    {
+	    strResult = strValue;
+	    return true;
+    }
+
+    inline bool xml_handle(CStringW &strResult, const CStringW &strValue)
     {
 	    strResult = strValue;
 	    return true;

@@ -29,9 +29,9 @@ namespace ImageShack {
 	 */
     struct AuthenticateResponse : public IUserInfo
 	{
-		CString id;
-		CString name;
-		CString cookie;
+		CStringW id;
+		CStringW name;
+		CStringW cookie;
 
         virtual LPCWSTR GetId() const { return id; }
         virtual LPCWSTR GetName() const { return name; }
@@ -93,7 +93,7 @@ XML_END_SERIALIZE_MAP()
 
 HTTP_DATA_MAP(API::ImageShack::UploadInfo)
     HTTP_STRING_CONSTANT("xml", "newformat")
-    HTTP_FILE_ELEMENT2EX_IF("fileupload", file, (CStringA)ExtractFileName(item.file), (CStringA)item.content_type, !IsHttpURL(item.file))
+    HTTP_FILE_ELEMENT2EX_IF("fileupload", file, (CStringA)ExtractFileName((CString)item.file), (CStringA)item.content_type, !IsHttpURL(item.file))
     HTTP_STRING2_IF("url", file, IsHttpURL(item.file))
     HTTP_STRING2("content-type", content_type)
     HTTP_STRING2("optsize", size)
@@ -206,7 +206,7 @@ bool ImageShackAPI::Login(LPCWSTR pszUserName, LPCWSTR pszPassword, IErrorRespon
 	request["nocookie"] = "1";
 
 	HTTP::Connection connection;
-	if (!connection.Send(L"http://img551.imageshack.us/auth.php"/*cfg.urlLoginAPI*/, request))
+	if (!connection.Send(cfg.urlLoginAPI, request))
 		return false;
 
  	CStringA strResponse;
@@ -263,7 +263,7 @@ void ImageShackAPI::SetPluginInfo(LPCWSTR pszPluginName, LPCWSTR pszPluginVersio
     m_pPrivate->strPluginVersion = pszPluginVersion;
 }
 
-void ImageShackAPI::UploadFiles(const IUploadInfo** pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener, const ProgressListenerSmartPtr &progressListener)
+void ImageShackAPI::UploadFiles(const UploadInfo* pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener, const ProgressListenerSmartPtr &progressListener)
 {
     if (!pFiles || !nCount)
         return;
@@ -274,10 +274,10 @@ void ImageShackAPI::UploadFiles(const IUploadInfo** pFiles, UINT nCount, const U
         UploadInfo item(pFiles[i]);
 
         if (IsFileURL(item.file))
-            item.file = ToFile(item.file);
+            item.file = ToFile((CString)item.file);
 
         if (item.content_type.IsEmpty())//we need content type to process item
-            item.content_type = GetContentType(ExtractFileExtension(item.file));
+            item.content_type = GetContentType(ExtractFileExtension((CString)item.file));
 
         // init internal fields
 	    item.devkey = m_pPrivate->devkey;
@@ -326,7 +326,11 @@ void ImageShackAPI::UploadFiles(const char* pszDevKey, LPCWSTR* pFiles, UINT nCo
 
 bool operator >> (const CStringA &strResponse, API::ImageShack::UploadResult &urResult)
 {
+#ifdef _UNICODE
     return ((CString)strResponse) >> urResult;
+#else
+    return ::operator >> <API::ImageShack::UploadResult> (strResponse, urResult);
+#endif
 }
 
 bool operator >> (const CStringA &strResponse, UPLOAD::UniversalUploaderErrorInfo &eiErrorResponse)

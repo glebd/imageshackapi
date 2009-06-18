@@ -318,7 +318,7 @@ public: // IUniversalUploaderResponseParser implementation
      *
      * Method must throw exception to stop upload.
      */
-    virtual UniversalUploaderParserResult Parse(long nStatus, const CString &strContentType, const CStringA &strResponse, T &tResult, UniversalUploaderErrorInfo &eiErrorInfo)
+    virtual UniversalUploaderParserResult Parse(long nStatus, const CStringA &strContentType, const CStringA &strResponse, T &tResult, UniversalUploaderErrorInfo &eiErrorInfo)
     {
         ATLTRACE( _T("UniversalUploaderResponseParser::Parse(%i, %s, ...)\n"), nStatus, strContentType );
 

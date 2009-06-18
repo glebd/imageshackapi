@@ -413,7 +413,7 @@ protected:
             return SkipAndUploadNextItem();
 
         LOG("UploadItem: call m_urlResolver->GetURL()");
-        CString url = m_urlResolver->GetURL(GetCurrentItem());
+        CStringW url = m_urlResolver->GetURL(GetCurrentItem());
         LOG("UploadItem: URL: ", url);
 
         if (!m_uploader)
@@ -480,7 +480,7 @@ protected:
     }
 
     // item upload complete inner listener. Will be called after upload complete and response parser will decide if response is ok or failed
-    void OnItemComplete(long nStatus, const CString &strContentType, const CStringA &strResponse)
+    void OnItemComplete(long nStatus, const CStringA &strContentType, const CStringA &strResponse)
     {
         LOG("OnItemComplete");
         // object should not be destroyed till end of method complete
@@ -695,7 +695,7 @@ protected:
 	    /**
 	     * Called after upload complete.
 	     */
-	    virtual void OnComplete(long nStatus, const CString &strContentType, const CStringA &strResponse)
+	    virtual void OnComplete(long nStatus, const CStringA &strContentType, const CStringA &strResponse)
         {
             if (!m_pUploader)
                 return;

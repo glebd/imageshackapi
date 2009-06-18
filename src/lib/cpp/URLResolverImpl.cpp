@@ -17,11 +17,11 @@ URLResolver::~URLResolver()
     ATLTRACE( _T("ImageShack::URLResolver::~URLResolver()\n") );
 }
 
-CString URLResolver::GetURL(const UploadInfo &item)
+CStringW URLResolver::GetURL(const UploadInfo &item)
 {
-    CString strFileExt = ExtractFileExtension(item.file);
+    CStringW strFileExt = ExtractFileExtension(item.file);
 
-    if (IsHttpURL(item.file) || item.content_type.Find( _T("image/") ) != -1 || strFileExt == _T("swf"))
+    if (IsHttpURL(item.file) || item.content_type.Find( L"image/" ) != -1 || strFileExt == L"swf")
     {
         return m_image_resolver.GetURL();
     }

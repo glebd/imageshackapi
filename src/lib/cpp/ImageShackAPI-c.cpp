@@ -4,7 +4,7 @@ using namespace API::ImageShack;
 
 extern "C" IMAGESHACK_API void ImageShackAPI_UploadFileA(LPCSTR pszDevKey, LPCSTR pszSourceFile)
 {
-    CString file(pszSourceFile);
+    CStringW file(pszSourceFile);
 
     LPCWSTR files[1];
     files[0] = (LPCWSTR)file;
@@ -13,7 +13,7 @@ extern "C" IMAGESHACK_API void ImageShackAPI_UploadFileA(LPCSTR pszDevKey, LPCST
 
 extern "C" IMAGESHACK_API void ImageShackAPI_UploadFileW(LPCSTR pszDevKey, LPCWSTR pszSourceFile)
 {
-    CString file(pszSourceFile);
+    CStringW file(pszSourceFile);
 
     LPCWSTR files[1];
     files[0] = (LPCWSTR)file;

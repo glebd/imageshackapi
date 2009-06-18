@@ -42,12 +42,12 @@ int CLoginDlg::OnOK()
 		return ShowMessageAndSetFocus(IDS_ENTER_PASSWORD, IDC_PASSWORD);
 
 	ErrorResponse erError;
-	if (!m_rAPI.Login(GetLogin(), GetPassword(), &erError))
+	if (!m_rAPI.Login((CStringW)GetLogin(), (CStringW)GetPassword(), &erError))
 	{
         if (erError.code == _T("authentication_failed"))
 			MessageBox(GetString(IDS_WRONG_CREDENTIALS), GetWindowTitle(), MB_ICONSTOP|MB_OK);
 		else if (!erError.message.IsEmpty())
-			MessageBox(erError.message, GetWindowTitle(), MB_ICONSTOP|MB_OK);
+			MessageBox((CString)erError.message, GetWindowTitle(), MB_ICONSTOP|MB_OK);
 		else
 			MessageBox(GetString(IDS_LOGIN_FAILED), GetWindowTitle(), MB_ICONSTOP|MB_OK);
 	}

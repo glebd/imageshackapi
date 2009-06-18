@@ -69,7 +69,17 @@ CString Node::GetName() const
 	return (CString)bsName;
 }
 
-bool Node::GetValue(CString &value) const
+bool Node::GetValue(CStringA &value) const
+{
+    CStringW strValue;
+    if (!GetValue(strValue))
+        return false;
+
+    value = (CStringA)strValue;
+    return true;
+}
+
+bool Node::GetValue(CStringW &value) const
 {
 	value.Empty();
 
@@ -89,7 +99,7 @@ bool Node::GetValue(CString &value) const
 		if (vtValue.vt != VT_BSTR && FAILED(vtValue.ChangeType(VT_BSTR)))
 			return false;
 			
-		value = (CString)vtValue.bstrVal;
+		value = (CStringW)vtValue.bstrVal;
 	}
 	else if (NODE_ELEMENT == type)
 	{
@@ -98,7 +108,7 @@ bool Node::GetValue(CString &value) const
 			if (NODE_TEXT != it->GetNodeType())
 				continue;
 
-			CString strValue;
+			CStringW strValue;
 			if (it->GetValue(strValue))
 				value += strValue;
 		}

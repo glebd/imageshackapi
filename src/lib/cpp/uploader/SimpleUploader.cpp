@@ -320,7 +320,7 @@ void CSimpleUploader::OnDone() throw(...)
 			LOG("Upload complete");
 
 			//TODO: http-status and content-type
-			m_listener->OnComplete(0, CString(), m_strResponse);
+			m_listener->OnComplete(0, CStringA(), m_strResponse);
 		}
 	}
 	catch(...)
@@ -548,7 +548,7 @@ void CSimpleUploader::SetListener(const SmartReleasePtr<ISimpleUploadListener> &
 	}
 }
 
-bool CSimpleUploader::Upload(const CString &strURL, const MultipartFormDataRequest &request)
+bool CSimpleUploader::Upload(const CStringW &strURL, const MultipartFormDataRequest &request)
 {
 	try
 	{
@@ -557,7 +557,7 @@ bool CSimpleUploader::Upload(const CString &strURL, const MultipartFormDataReque
 
 		DoInitialize();
 
-		if (!m_url.CrackUrl(strURL))
+		if (!m_url.CrackUrl((CString)strURL))
 			throw (CStringA)"Invalid URL: " + (CStringA)strURL;
 
 		m_strHeaders = request.GetHead(), m_data = request.GetBody(), m_dwPos = 0;
