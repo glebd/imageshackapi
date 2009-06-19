@@ -57,9 +57,6 @@ namespace ImageShack {
 
         AuthenticateResponse auth_info;
 
-        CString strPluginName;
-        CString strPluginVersion;
-
         ImageShackAPIPrivate(const CString& strDevKey);
         
         void Empty()
@@ -189,7 +186,7 @@ bool ImageShackAPI::Login()
 	return IsLoggedIn();
 }
 
-bool ImageShackAPI::Login(LPCWSTR pszUserName, LPCWSTR pszPassword, IErrorResponse* pError/* = NULL*/)
+bool ImageShackAPI::Login(LPCWSTR pszUserName, LPCWSTR pszPassword, ErrorResponse* pError/* = NULL*/)
 {
 	// keep the last
 	m_pPrivate->Empty();
@@ -222,8 +219,8 @@ bool ImageShackAPI::Login(LPCWSTR pszUserName, LPCWSTR pszPassword, IErrorRespon
     ErrorResponse errorResponse;
     if (((CString)strResponse) >> errorResponse && pError)
     {
-        pError->SetCode(errorResponse.code);
-        pError->SetMessage(errorResponse.message);
+        pError->code = errorResponse.code;
+        pError->message = errorResponse.message;
     }
 
 	return false;
@@ -255,12 +252,6 @@ void ImageShackAPI::SetAuthInfo(LPCWSTR pszUser, LPCWSTR pszPassword)
     m_pPrivate->Empty();
     m_pPrivate->username = pszUser;
     m_pPrivate->password = pszPassword;
-}
-
-void ImageShackAPI::SetPluginInfo(LPCWSTR pszPluginName, LPCWSTR pszPluginVersion)
-{
-    m_pPrivate->strPluginName = pszPluginName;
-    m_pPrivate->strPluginVersion = pszPluginVersion;
 }
 
 void ImageShackAPI::UploadFiles(const UploadInfo* pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener, const ProgressListenerSmartPtr &progressListener)
@@ -309,19 +300,6 @@ void ImageShackAPI::UploadFiles(const UploadInfo* pFiles, UINT nCount, const Upl
         uploader->SetListener(UploaderListenerComposite::NewInstance(STUBS::UniversalUploaderListener<UploadInfo, UploadResult>::NewInstance(), autoReleaseListener));
 
     uploader->Upload(items);
-}
-
-void ImageShackAPI::UploadFiles(const char* pszDevKey, LPCWSTR* pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener, const ProgressListenerSmartPtr &progressListener)
-{
-    ImageShackAPI api(pszDevKey);
-
-    CSimpleArray<UploadInfo> items;
-    for (UINT i = 0; i < nCount; ++i)
-    {
-        items.Add(UploadInfo(pFiles[i]));
-    }
-
-    api.UploadFiles(items, uploaderListener, progressListener);
 }
 
 bool operator >> (const CStringA &strResponse, API::ImageShack::UploadResult &urResult)
