@@ -42,9 +42,8 @@ namespace UPLOAD {
 #define UM_POST_DATA		(WM_USER + 777 + 3)
 #define UM_END_REQUEST		(WM_USER + 777 + 4)
 #define UM_READ_RESPONSE	(WM_USER + 777 + 6)
-#define UM_PROCESS_RESPONSE	(WM_USER + 777 + 7)
-#define UM_DONE				(WM_USER + 777 + 8)
-#define UM_ERROR			(WM_USER + 777 + 9)
+#define UM_DONE				(WM_USER + 777 + 7)
+#define UM_ERROR			(WM_USER + 777 + 8)
 
 /**
  * Asynchronous uploader for single request.
@@ -69,7 +68,6 @@ public:
 		UPLOAD_MESSAGE_HANDLER_EX0(UM_POST_DATA, DoSendData)
 		UPLOAD_MESSAGE_HANDLER_EX0(UM_END_REQUEST, DoEndRequest)
 		UPLOAD_MESSAGE_HANDLER_EX0(UM_READ_RESPONSE, DoReadResponse)
-		UPLOAD_MESSAGE_HANDLER_EX0(UM_PROCESS_RESPONSE, DoProcessResponse)
 		UPLOAD_MESSAGE_HANDLER_EX0(UM_DONE, OnDone)
 		UPLOAD_MESSAGE_HANDLER_EX0(UM_ERROR, OnError)
 		MSG_WM_TIMER(OnTimer)
@@ -142,7 +140,6 @@ private:
 	void DoRequestEnded() throw(...);
 	void DoReadStatus() throw(...);
 	void DoReadResponse() throw(...);
-	void DoProcessResponse() throw(...);
 	void OnDone() throw(...);
 	void OnError() throw(...);
 

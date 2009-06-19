@@ -13,11 +13,11 @@ template <typename T>
 class URLResolver : public IUniversalUploaderURLResolver<T>
 {
 protected:
-    CString m_strURL;
+    CStringW m_strURL;
 
 protected:
     URLResolver(LPCTSTR pszURL)
-        : m_strURL(pszURL)
+        : m_strURL((CStringW)pszURL)
     {
         ATLTRACE( _T("URLResolver: %s\n"), m_strURL );
     }
@@ -37,7 +37,7 @@ public:
     /**
      * Must return URL for POST data request
      */
-    virtual CString GetURL(const T &item)
+    virtual CStringW GetURL(const T &item)
     {
         return m_strURL;
     }

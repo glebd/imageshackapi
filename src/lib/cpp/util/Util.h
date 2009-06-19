@@ -105,11 +105,11 @@ inline CString GetWindowText(CWindow wnd)
  */
 inline bool IsFileURL(LPCSTR url)
 {
-	return ! strnicmp(url, "file:///", 8);
+	return !_strnicmp(url, "file:///", 8);
 }
 inline bool IsFileURL(LPCWSTR url)
 {
-	return ! wcsnicmp(url, L"file:///", 8);
+	return !_wcsnicmp(url, L"file:///", 8);
 }
 
 /**
@@ -117,11 +117,11 @@ inline bool IsFileURL(LPCWSTR url)
  */
 inline bool IsHttpURL(LPCSTR url)
 {
-	return ! strnicmp(url, "http://", 7);
+	return !_strnicmp(url, "http://", 7);
 }
 inline bool IsHttpURL(LPCWSTR url)
 {
-	return ! wcsnicmp(url, L"http://", 7);
+	return !_wcsnicmp(url, L"http://", 7);
 }
 
 /**

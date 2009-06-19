@@ -252,6 +252,8 @@ void CSimpleUploader::DoEndRequest() throw(...)
 
 void CSimpleUploader::DoRequestEnded() throw(...)
 {
+	LOG("Request ended");
+
 	m_state = postRequestEnded;
 	PostMessage(UM_READ_RESPONSE);
 }
@@ -261,6 +263,7 @@ void CSimpleUploader::DoReadResponse() throw(...)
 	LOG("Reading response...");
 
 	ZeroMemory(&m_ibReadBuffA, sizeof(m_ibReadBuffA));
+	ZeroMemory(&m_szReadBuffer, sizeof(m_szReadBuffer));
 	m_ibReadBuffA.dwStructSize = sizeof(m_ibReadBuffA);
 	m_ibReadBuffA.lpvBuffer = m_szReadBuffer;
 	m_ibReadBuffA.dwBufferLength = sizeof(m_szReadBuffer) - 1;
@@ -277,23 +280,19 @@ void CSimpleUploader::DoReadResponse() throw(...)
 	else
 	{
 		LOG("Response read sync.");
-		PostMessage(UM_PROCESS_RESPONSE);
-	}
-}
 
-void CSimpleUploader::DoProcessResponse() throw(...)
-{
-	if (0 == m_ibReadBuffA.dwBufferLength) // response was completely read
-	{
-		LOG("Response was read");
-		PostMessage(UM_DONE);
-	}
-	else
-	{
-		m_szReadBuffer[m_ibReadBuffA.dwBufferLength] = 0;
-		m_strResponse += m_szReadBuffer;
+        if (0 == m_ibReadBuffA.dwBufferLength) // response was completely read
+        {
+            LOG("Response was read");
+            PostMessage(UM_DONE);
+        }
+        else
+        {
+            m_szReadBuffer[m_ibReadBuffA.dwBufferLength] = 0;
+            m_strResponse += m_szReadBuffer;
 
-		PostMessage(UM_READ_RESPONSE);
+            PostMessage(UM_READ_RESPONSE);
+        }
 	}
 }
 
@@ -420,7 +419,7 @@ LRESULT CSimpleUploader::Dispatcher(UINT, DWORD dwInternetStatus, DWORD dwParam)
 					DoRequestEnded();
 					break;
 				case postWaitReadingResponse:
-					PostMessage(UM_PROCESS_RESPONSE);
+					PostMessage(UM_READ_RESPONSE);
 					break;
 				default:
 					LOG("Dispatch: ALERT! REQUEST_COMPLETE for State: %i", m_state);

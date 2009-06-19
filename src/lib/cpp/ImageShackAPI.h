@@ -295,9 +295,13 @@ public:
      *   nCount           - number of items in array
      *   uploaderListener - upload listener to track upload process.
      *                      Optional, but you should know when upload complete to avoid exceptions during exit from your application.
+     *                      See default template implementation UniversalUploaderListener in stubs.h
      *   progressListener - optional, progress listener to replace default progress dialog.
+     *                      See default template implementation UniversalUploaderProgressListener in stubs.h
      *
      * Exceptions:
+     *   If upload cannot be started then UPLOAD::UniversalUploaderException will be thrown.
+     *   For example if nCount is zero.
      */
     void UploadFiles(const UploadInfo* pFiles, UINT nCount, const UploaderListenerSmartPtr &uploaderListener = UploaderListenerSmartPtr(), const ProgressListenerSmartPtr &progressListener = ProgressListenerSmartPtr());
 
