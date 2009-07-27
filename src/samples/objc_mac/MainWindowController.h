@@ -20,6 +20,10 @@
 	IBOutlet NSTextField *loginField;
 	IBOutlet NSSecureTextField *passField;
    
+	IBOutlet NSButton *start;
+	IBOutlet NSButton *reset;
+
+
 	ImageUploader *uploadConnection;
    
 	ImageDownoader *downloadFullImageConnection;
@@ -28,6 +32,7 @@
 }
 
 - (IBAction)starUploadAndDownload:(id)sender;
+- (IBAction)resetUploadAndDownload:(id)sender;
 - (void)uploadedImage:(NSString*)yFrogURL sender:(ImageUploader*)sender;
 - (void)receivedImage:(NSImage*)image sender:(ImageDownoader*)sender;
 

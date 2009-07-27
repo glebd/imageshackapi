@@ -27,6 +27,9 @@
 #import "yFrogImageUploader.h"
 #import "additionalFunctions.h"
 
+#define		JPEG_CONTENT_TYPE			@"image/jpeg"
+#define		MP4_CONTENT_TYPE			@"video/mp4"
+
 @implementation ImageUploader
 
 @synthesize connection;
@@ -38,6 +41,9 @@
 @synthesize password;
 @synthesize scaleIfNeed;
 @synthesize imageScalingSize;
+@synthesize contentType;
+@synthesize messageForBlog;
+@synthesize blog;
 
 -(id)init
 {
@@ -51,6 +57,7 @@
 		latitude = 0.f;
 		longitude = 0.f;
 		imageScalingSize = -1.f;
+		blog = kNoBlog;
 	}
 	return self;
 }
@@ -64,32 +71,54 @@
 	self.userData = nil;
 	self.login = nil;
 	self.password = nil;
+	self.contentType = nil;
+	self.messageForBlog = nil;
 	[result  release];
 	[super dealloc];
 }
 
-- (void) postJPEGData:(NSData*)imageJPEGData 
+- (void) postData:(NSData*)data
 {
 	if(canceled)
 		return;
 	
+	if(!self.contentType)
+	{
+		NSLog(@"Content-Type header was not setted\n");
+		return;
+	}
+
 	NSString *boundary = [NSString stringWithFormat:@"------%ld__%ld__%ld", random(), random(), random()];
 	
-	NSURL *url = [NSURL URLWithString:@"http://yfrog.com/api/upload"];
+	NSURL *url = nil;
+	
+	switch(blog)
+	{
+		case kNoBlog:
+			url = [NSURL URLWithString:@"http://yfrog.com/api/upload"];
+			break;
+		case kTwitter:
+			url = [NSURL URLWithString:@"http://yfrog.com/api/uploadAndPost"];
+			break;
+		default:
+			NSLog(@"Unknown target blog service\n");
+			return;
+	};
+	
 	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
 	[req setHTTPMethod:@"POST"];
 
-	NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
-	[req setValue:contentType forHTTPHeaderField:@"Content-type"];
+	NSString *multipartContentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+	[req setValue:multipartContentType forHTTPHeaderField:@"Content-type"];
 	
 	//adding the body:
 	NSMutableData *postBody = [NSMutableData data];
 	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
 	
 	[postBody appendData:[@"Content-Disposition: form-data; name=\"media\"; filename=\"iPhoneImage\"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-	[postBody appendData:[@"Content-Type: image/jpeg\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+	[postBody appendData:[[NSString stringWithFormat:@"Content-Type: %@\r\n", self.contentType] dataUsingEncoding:NSUTF8StringEncoding]];
 	[postBody appendData:[@"Content-Transfer-Encoding: binary\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-	[postBody appendData:imageJPEGData];
+	[postBody appendData:data];
 	[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
 	
 	[postBody appendData:[@"Content-Disposition: form-data; name=\"username\"\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
@@ -98,6 +127,14 @@
 	
 	[postBody appendData:[@"Content-Disposition: form-data; name=\"password\"\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
 	[postBody appendData:[password dataUsingEncoding:NSUTF8StringEncoding]];
+	
+	if(messageForBlog)
+	{
+		[postBody appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+		
+		[postBody appendData:[@"Content-Disposition: form-data; name=\"message\"\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+		[postBody appendData:[messageForBlog dataUsingEncoding:NSUTF8StringEncoding]];
+	}
 	
 	if(useLocations)
 	{
@@ -123,7 +160,21 @@
 	INCREASE_NETWORK_ACTIVITY_INDICATOR;
 }
 
-- (void)postJPEGData:(NSData*)imageJPEGData delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+- (void) postData:(NSData*)data contentType:(NSString*)mediaContentType
+{
+	self.contentType = mediaContentType;
+	[self postData:data];
+}
+
+
+- (void)uploadJPEGData:(NSData*)imageJPEGData twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+{
+	self.blog = kTwitter;
+	self.messageForBlog = twitterText;
+	[self uploadJPEGData:imageJPEGData delegate:dlgt userData:data];
+}
+
+- (void)uploadJPEGData:(NSData*)imageJPEGData delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
 {
 	if(!imageJPEGData)
 	{
@@ -134,8 +185,31 @@
 	self.delegate = dlgt;
 	self.userData = data;
 
-	[self postJPEGData:imageJPEGData];
+	[self postData:imageJPEGData contentType:JPEG_CONTENT_TYPE];
 }
+
+
+- (void)uploadMP4Data:(NSData*)movieData twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+{
+	self.blog = kTwitter;
+	self.messageForBlog = twitterText;
+	[self uploadMP4Data:movieData delegate:dlgt userData:data];
+}
+
+- (void)uploadMP4Data:(NSData*)movieData delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+{
+	if(!movieData)
+	{
+		[delegate uploadedImage:nil sender:self];
+		[self release];
+	}
+		
+	self.delegate = dlgt;
+	self.userData = data;
+
+	[self postData:movieData contentType:MP4_CONTENT_TYPE];
+}
+
 
 #if TARGET_OS_IPHONE
 - (void)convertImageThreadAndStartUpload:(UIImage*)image
@@ -143,7 +217,8 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSData* imData = UIImageJPEGRepresentation(image, 1.0f);
-	[self performSelectorOnMainThread:@selector(postJPEGData:) withObject:imData waitUntilDone:NO];
+	self.contentType = JPEG_CONTENT_TYPE;
+	[self performSelectorOnMainThread:@selector(postData:) withObject:imData waitUntilDone:NO];
 
 	[pool release];
 }
@@ -153,7 +228,8 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSData* imData = [bitmapRep representationUsingType:NSJPEGFileType properties:nil];
-	[self performSelectorOnMainThread:@selector(postJPEGData:) withObject:imData waitUntilDone:NO];
+	self.contentType = JPEG_CONTENT_TYPE;
+	[self performSelectorOnMainThread:@selector(postData:) withObject:imData waitUntilDone:NO];
 
 	[pool release];
 }
@@ -186,7 +262,16 @@
 
 
 #if TARGET_OS_IPHONE
-- (void)postImage:(UIImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+
+- (void)uploadImage:(UIImage*)image twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+{
+	self.blog = kTwitter;
+	self.messageForBlog = twitterText;
+	
+	[self uploadImage:image delegate:dlgt userData:data];
+}
+
+- (void)uploadImage:(UIImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
 {
 	delegate = [dlgt retain];
 	self.userData = data;
@@ -202,7 +287,16 @@
 	[NSThread detachNewThreadSelector:@selector(convertImageThreadAndStartUpload:) toTarget:self withObject:modifiedImage ? modifiedImage : image];
 }
 #else
-- (void)postImage:(NSImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+
+- (void)uploadImage:(NSImage*)image twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
+{
+	self.blog = kTwitter;
+	self.messageForBlog = twitterText;
+	
+	[self uploadImage:image delegate:dlgt userData:data];
+}
+
+- (void)uploadImage:(NSImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data
 {
 	delegate = [dlgt retain];
 	self.userData = data;

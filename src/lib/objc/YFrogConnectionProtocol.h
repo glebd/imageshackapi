@@ -27,7 +27,7 @@
 #import <Foundation/Foundation.h>
 
 
-@protocol TwitterConnectionProtocol<NSObject>
+@protocol YFrogConnectionProtocol<NSObject>
 
 - (void)cancel;
 - (BOOL)canceled;

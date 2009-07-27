@@ -25,7 +25,7 @@
 // 
 
 #import <Foundation/Foundation.h>
-#import "TwitterConnectionProtocol.h"
+#import "YFrogConnectionProtocol.h"
 
 typedef enum _ImageType
 {
@@ -48,7 +48,7 @@ typedef enum _ImageType
 @end
 
 
-@interface ImageDownoader : NSObject <TwitterConnectionProtocol>
+@interface ImageDownoader : NSObject <YFrogConnectionProtocol>
 {
 	NSMutableData*	result;
 	ImageType		imageType;

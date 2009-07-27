@@ -46,15 +46,54 @@
 	uploader.imageScalingSize = MAX_IMAGE_SIZE;
 	uploader.login = [loginField stringValue];
 	uploader.password = [passField stringValue];
-	[uploader postImage:image delegate:self userData:image];
+
+//	uploader.blog = kTwitter;
+//	uploader.messageForBlog = @"Test for sample";
+
+
+	[uploader uploadImage:image delegate:self userData:image];
 	[uploader release];
+	
+	[start setEnabled:NO];
+	[reset setEnabled:YES];
+}
+
+- (IBAction)resetUploadAndDownload:(id)sender
+{
+	[reset setEnabled:NO];
+	
+	if(self.uploadConnection)
+		[self.uploadConnection cancel];
+	self.uploadConnection = nil;
+	
+	if(self.downloadFullImageConnection)
+		[self.downloadFullImageConnection cancel];
+	self.downloadFullImageConnection = nil;
+	fullDownloadedImage.image = nil;
+
+	if(self.downloadIPhoneImageConnection)
+		[self.downloadIPhoneImageConnection cancel];
+	self.downloadIPhoneImageConnection = nil;
+	iPhoneDownloadedImage.image = nil;
+
+	if(self.downloadThumbnailImageConnection)
+		[self.downloadThumbnailImageConnection cancel];
+	self.downloadThumbnailImageConnection = nil;
+	thumbDownloadedImage.image = nil;
+
+	[start setEnabled:YES];
 }
 
 - (void)uploadedImage:(NSString*)yFrogURL sender:(ImageUploader*)sender
 {
 	self.uploadConnection = nil;
 	if(!yFrogURL)
+	{
+		NSBeginAlertSheet(@"Error occure", nil, nil, nil, [imageForUploading window], nil, 
+					  nil, 
+					  nil, nil, @"Image was not uploaded");
 		return;
+	}
 
 	self.downloadFullImageConnection = [[[ImageDownoader alloc] init] autorelease];
 	[self.downloadFullImageConnection getImageFromURL:yFrogURL imageType:fullYFrog delegate:self];

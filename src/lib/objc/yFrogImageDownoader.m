@@ -217,10 +217,14 @@
 - (void)cancel
 {
 	canceled = YES;
-	[connection cancel];
-	DECREASE_NETWORK_ACTIVITY_INDICATOR;
-	[delegate receivedImage:nil sender:self];
-	[self release];
+	if(connection)
+	{
+		[connection cancel];
+		DECREASE_NETWORK_ACTIVITY_INDICATOR;
+		[delegate receivedImage:nil sender:self];
+		[self release];
+	}
+	canceled = YES;
 }
 
 - (BOOL)canceled

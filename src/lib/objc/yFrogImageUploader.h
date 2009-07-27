@@ -25,7 +25,7 @@
 // 
 
 #import <Foundation/Foundation.h>
-#import "TwitterConnectionProtocol.h"
+#import "YFrogConnectionProtocol.h"
 
 @class ImageUploader;
 
@@ -35,9 +35,13 @@
 
 @end
 
+typedef enum _TargetBlog
+{
+	kNoBlog,
+	kTwitter
+} TargetBlog;
 
-
-@interface ImageUploader : NSObject <TwitterConnectionProtocol>
+@interface ImageUploader : NSObject <YFrogConnectionProtocol>
 {
 	NSMutableData*	result;
 	id <ImageUploaderDelegate> delegate;
@@ -57,13 +61,22 @@
 	float			longitude;
 	
 	float			imageScalingSize;
+
+	NSString*		contentType;
+	NSString*		messageForBlog;
+	TargetBlog		blog;
 }
 
-- (void)postJPEGData:(NSData*)imageJPEGData delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data;
+- (void)uploadJPEGData:(NSData*)imageJPEGData delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data;
+- (void)uploadJPEGData:(NSData*)imageJPEGData twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data;
+- (void)uploadMP4Data:(NSData*)movieData delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data;
+- (void)uploadMP4Data:(NSData*)movieData twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data;
 #if TARGET_OS_IPHONE
-- (void)postImage:(UIImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data; // call postJPEGData:delegate:userData:
+- (void)uploadImage:(UIImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data; // call uploadJPEGData:delegate:userData:
+- (void)uploadImage:(UIImage*)image twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data; // call uploadJPEGData:delegate:userData:
 #else
-- (void)postImage:(NSImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data; // call postJPEGData:delegate:userData:
+- (void)uploadImage:(NSImage*)image delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data; // call uploadJPEGData:delegate:userData:
+- (void)uploadImage:(NSImage*)image twitterUpdate:(NSString*)twitterText delegate:(id <ImageUploaderDelegate>)dlgt userData:(id)data; // call uploadJPEGData:delegate:userData:
 #endif
 - (void)cancel;
 - (BOOL)canceled;
@@ -78,5 +91,8 @@
 @property (nonatomic, retain) id <ImageUploaderDelegate> delegate;
 @property (readwrite, assign) BOOL scaleIfNeed;
 @property (readwrite, assign) float imageScalingSize;
+@property (nonatomic, retain) NSString* contentType;
+@property (nonatomic, retain) NSString* messageForBlog;
+@property (readwrite, assign) TargetBlog blog;
 
 @end
