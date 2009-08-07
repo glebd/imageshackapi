@@ -105,6 +105,12 @@
 			return;
 	};
 	
+    if(blog == kNoBlog && messageForBlog)
+    {
+        NSLog(@"Target blog not specified.\n");
+        return;
+    }
+
 	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
 	[req setHTTPMethod:@"POST"];
 
