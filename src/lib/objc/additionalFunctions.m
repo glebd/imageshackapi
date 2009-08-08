@@ -8,8 +8,8 @@
 
 #import "additionalFunctions.h"
 
-#if TARGET_OS_IPHONE
 
+#if defined (MANAGE_NETWORK_ACTIVITY_INDICATOR_USING_YFROG_LIBRARY) && defined (TARGET_OS_IPHONE)
 	static int NetworkActivityIndicatorCounter = 0;
 
 
@@ -24,7 +24,9 @@
 		NetworkActivityIndicatorCounter--;
 		[UIApplication sharedApplication].networkActivityIndicatorVisible = NetworkActivityIndicatorCounter > 0;
 	}
+#endif
 	
+#if TARGET_OS_IPHONE
 	// may cause a crash in non main thead
 	UIImage* imageScaledToSize(UIImage* image, int maxDimension)
 	{
