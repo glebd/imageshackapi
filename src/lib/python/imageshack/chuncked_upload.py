@@ -77,6 +77,7 @@ class Uploader:
         if self.password is not None:
             data['a_password'] = self.password
 
+        print data
         try:
             req = urllib2.urlopen(ENDPOINT+'/start', urllib.urlencode(data))
             xml = req.read()
@@ -138,13 +139,13 @@ class Uploader:
         if end == -1: end = filelen
         if end > filelen: end = filelen
         try:
-            conn = httplib.HTTPConnection(SERVER)
+            conn = httplib.HTTPConnection(purl.netloc)
             conn.connect()
-            conn.putrequest('PUT', "%s" % purl.path)
+            conn.putrequest('PUT', purl.path)
             range_str="bytes %d-%d/%d" % (begin, end, filelen)
             conn.putheader('Content-range', range_str)
             conn.putheader('Content-type', 'application/octet-stream')
-            conn.putheader('Content-length', (end - begin) + 1)
+            conn.putheader('Content-length', (end - begin)))
             conn.endheaders()
         except:
             raise UploadException('Could not connect to server')
@@ -155,7 +156,9 @@ class Uploader:
         except: raise UploadException('Could not seek file')
         
         while current_byte < end:
-            try: data = fileobj.read(BLOCK_SIZE)
+            try:
+                data = fileobj.read(BLOCK_SIZE)
+                print 'sending %d bytes' % len(data) 
             except: raise UploadException('File I/O error')
             try: conn.send(data)
             except: raise UploadException('Could not send data')

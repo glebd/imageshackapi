@@ -64,6 +64,7 @@ def main():
     except Exception as e:
         print 'ERROR: File could not be uploaded:'
         print e
+        sys.exit(1)
     print res[2]
         
     
